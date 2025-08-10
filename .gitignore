@@ -31,7 +31,6 @@ firepit-log.txt
 # Firebase keys (don’t commit!)
 google-services.json
 GoogleService-Info.plist
-firebase_options.dart
 
 # Miscellaneous
 *.class
