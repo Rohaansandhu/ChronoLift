@@ -28,9 +28,12 @@ class _HomePageState extends State<HomePage> {
     _loadInitialLogs();
   }
 
-  void _logout() {
-    _auth.signOut();
-  }
+void _logout() async {
+  await _auth.signOut();
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Logged out successfully')),
+  );
+}
 
   Future<void> _loadInitialLogs() async {
     final snapshot = await _firestore
