@@ -1,0 +1,51 @@
+{
+  "Abs": [
+    "Bicycle Crunches",
+    "Crunches",
+    "Leg Raises",
+    "Plank",
+    "Russian Twists"
+  ],
+  "Back": [
+    "Barbell Row",
+    "Deadlift",
+    "Lat Pulldown",
+    "Pull-Ups",
+    "Seated Cable Row"
+  ],
+  "Biceps": [
+    "Barbell Curl",
+    "Concentration Curl",
+    "Dumbbell Curl",
+    "Hammer Curl",
+    "Preacher Curl"
+  ],
+  "Chest": [
+    "Bench Press",
+    "Chest Dips",
+    "Dumbbell Flyes",
+    "Incline Bench Press",
+    "Push-Ups"
+  ],
+  "Legs": [
+    "Calf Raises",
+    "Leg Press",
+    "Lunges",
+    "Romanian Deadlift",
+    "Squats"
+  ],
+  "Shoulders": [
+    "Arnold Press",
+    "Front Raises",
+    "Lateral Raises",
+    "Overhead Press",
+    "Shrugs"
+  ],
+  "Triceps": [
+    "Cable Pushdowns",
+    "Close-Grip Bench Press",
+    "Overhead Tricep Extension",
+    "Skull Crushers",
+    "Tricep Dips"
+  ]
+}

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,13 +20,22 @@ class _WorkoutPageState extends State<WorkoutPage> {
   String? selectedRoutine;
   List<Map<String, dynamic>> exercises = [];
 
-  // Example categories + exercises (replace later with your default lists)
-  final Map<String, List<String>> exerciseCategories = {
-    "Chest": ["Bench Press", "Incline Dumbbell Press", "Push Ups"],
-    "Legs": ["Squat", "Lunge", "Leg Press"],
-    "Biceps": ["Barbell Curl", "Hammer Curl"],
-    "Triceps": ["Tricep Dips", "Overhead Extension"],
-  };
+  late Map<String, dynamic> exerciseCategories;
+
+  @override
+  void initState() {
+    super.initState();
+    loadExerciseDefaults().then((data) {
+      setState(() {
+        exerciseCategories = data;
+      });
+    });
+  }
+
+  Future<Map<String, dynamic>> loadExerciseDefaults() async {
+    final jsonString = await rootBundle.loadString('assets/exercise_defaults.json');
+    return jsonDecode(jsonString);
+  }
 
   // Add exercise dialog
   Future<void> _addExerciseDialog() async {
@@ -61,12 +72,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     DropdownButton<String>(
                       hint: const Text("Select Exercise"),
                       value: chosenExercise,
-                      items: exerciseCategories[chosenCategory]!
-                          .map((ex) => DropdownMenuItem(
-                                value: ex,
-                                child: Text(ex),
-                              ))
-                          .toList(),
+                      items: (exerciseCategories[chosenCategory]! as List<dynamic>)
+                        .map((ex) => DropdownMenuItem<String>(
+                              value: ex.toString(),
+                              child: Text(ex.toString()),
+                            ))
+                        .toList(),
                       onChanged: (val) {
                         setDialogState(() {
                           chosenExercise = val;
