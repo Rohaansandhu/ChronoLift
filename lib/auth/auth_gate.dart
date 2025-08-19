@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chronolift/pages/home.dart';
+import 'package:chronolift/pages/home_page.dart';
 import 'package:chronolift/pages/login_page.dart';
 
 class AuthGate extends StatelessWidget {

@@ -1,44 +1,65 @@
+import 'package:chronolift/models/workout_log_model.dart';
 import 'package:flutter/material.dart';
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '/models/exercise_model.dart';
 
-class WorkoutPage extends StatefulWidget {
-  const WorkoutPage({Key? key}) : super(key: key);
-
-  @override
-  State<WorkoutPage> createState() => _WorkoutPageState();
-}
-
-class _WorkoutPageState extends State<WorkoutPage> {
-  final TextEditingController _nameController = TextEditingController();
-  DateTime startTime = DateTime.now();
+/// Workout state manager
+class WorkoutState extends ChangeNotifier {
+  final TextEditingController nameController = TextEditingController();
+  final DateTime startTime = DateTime.now();
   DateTime? endTime;
 
   String? selectedRoutine;
-  List<Map<String, dynamic>> exercises = [];
+  final List<Map<String, dynamic>> exercises = [];
 
-  late Map<String, dynamic> exerciseCategories;
+  void addExercise(String name) {
+    exercises.add({"name": name, "sets": []});
+    notifyListeners();
+  }
 
-  @override
-  void initState() {
-    super.initState();
-    loadExerciseDefaults().then((data) {
-      setState(() {
-        exerciseCategories = data;
-      });
+  void addSet(int index, int reps, double weight) {
+    exercises[index]["sets"].add({"reps": reps, "weight": weight});
+    notifyListeners();
+  }
+
+  Future<void> finishWorkout(BuildContext context) async {
+    endTime = DateTime.now();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .collection("workouts")
+        .add({
+      "name":
+          nameController.text.isEmpty ? "Workout" : nameController.text.trim(),
+      "startTime": startTime,
+      "endTime": endTime,
+      "date": DateTime.now(),
+      "routine": selectedRoutine,
+      "exercises": exercises,
     });
-  }
 
-  Future<Map<String, dynamic>> loadExerciseDefaults() async {
-    final jsonString = await rootBundle.loadString('assets/exercise_defaults.json');
-    return jsonDecode(jsonString);
-  }
+    // Refresh the workout logs on the home page
+    if (context.mounted) {
+      // Get the WorkoutLogModel from the root of the widget tree
+      final workoutLogModel = Provider.of<WorkoutLogModel>(context, listen: false);
+      await workoutLogModel.refreshLogs();
+    }
 
-  // Add exercise dialog
-  Future<void> _addExerciseDialog() async {
+    Navigator.pop(context);
+  }
+}
+
+class WorkoutPage extends StatelessWidget {
+  const WorkoutPage({Key? key}) : super(key: key);
+
+  Future<void> _addExerciseDialog(BuildContext context) async {
+    final exerciseModel = context.read<ExerciseModel>();
+    final workoutState = context.read<WorkoutState>();
     String? chosenCategory;
     String? chosenExercise;
 
@@ -55,7 +76,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   DropdownButton<String>(
                     hint: const Text("Select Category"),
                     value: chosenCategory,
-                    items: exerciseCategories.keys
+                    items: exerciseModel.categories.keys
                         .map((cat) => DropdownMenuItem(
                               value: cat,
                               child: Text(cat),
@@ -64,7 +85,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     onChanged: (val) {
                       setDialogState(() {
                         chosenCategory = val;
-                        chosenExercise = null; // reset on category change
+                        chosenExercise = null;
                       });
                     },
                   ),
@@ -72,16 +93,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                     DropdownButton<String>(
                       hint: const Text("Select Exercise"),
                       value: chosenExercise,
-                      items: (exerciseCategories[chosenCategory]! as List<dynamic>)
-                        .map((ex) => DropdownMenuItem<String>(
-                              value: ex.toString(),
-                              child: Text(ex.toString()),
-                            ))
-                        .toList(),
+                      items: (exerciseModel.categories[chosenCategory]!
+                              as List<dynamic>)
+                          .map((ex) => DropdownMenuItem<String>(
+                                value: ex.toString(),
+                                child: Text(ex.toString()),
+                              ))
+                          .toList(),
                       onChanged: (val) {
-                        setDialogState(() {
-                          chosenExercise = val;
-                        });
+                        setDialogState(() => chosenExercise = val);
                       },
                     ),
                 ],
@@ -95,12 +115,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   onPressed: chosenExercise == null
                       ? null
                       : () {
-                          setState(() {
-                            exercises.add({
-                              "name": chosenExercise!,
-                              "sets": [],
-                            });
-                          });
+                          workoutState.addExercise(chosenExercise!);
                           Navigator.pop(context);
                         },
                   child: const Text("Add"),
@@ -113,15 +128,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
     );
   }
 
-  // Add set to exercise
-  void _addSet(int index) {
+  void _addSetDialog(BuildContext context, int index) {
+    final workoutState = context.read<WorkoutState>();
+    final repsController = TextEditingController();
+    final weightController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) {
-        final repsController = TextEditingController();
-        final weightController = TextEditingController();
         return AlertDialog(
-          title: Text("Add Set - ${exercises[index]['name']}"),
+          title: Text("Add Set - ${workoutState.exercises[index]['name']}"),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -143,12 +159,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 child: const Text("Cancel")),
             ElevatedButton(
               onPressed: () {
-                setState(() {
-                  exercises[index]["sets"].add({
-                    "reps": int.tryParse(repsController.text) ?? 0,
-                    "weight": double.tryParse(weightController.text) ?? 0,
-                  });
-                });
+                workoutState.addSet(
+                  index,
+                  int.tryParse(repsController.text) ?? 0,
+                  double.tryParse(weightController.text) ?? 0,
+                );
                 Navigator.pop(context);
               },
               child: const Text("Add"),
@@ -159,72 +174,47 @@ class _WorkoutPageState extends State<WorkoutPage> {
     );
   }
 
-  // Save workout to Firestore
-  Future<void> _finishWorkout() async {
-    endTime = DateTime.now();
-
-    final user = FirebaseAuth.instance.currentUser;
-    if (user == null) return;
-
-    await FirebaseFirestore.instance
-        .collection("workouts")
-        .doc(user.uid)
-        .collection("userWorkouts")
-        .add({
-      "name": _nameController.text.isEmpty
-          ? "Workout"
-          : _nameController.text.trim(),
-      "startTime": startTime,
-      "endTime": endTime,
-      "date": DateTime.now(),
-      "routine": selectedRoutine,
-      "exercises": exercises,
-    });
-
-    Navigator.pop(context); // Go back after saving
-  }
-
   @override
   Widget build(BuildContext context) {
+    final exerciseModel = context.watch<ExerciseModel>();
+    final workoutState = context.watch<WorkoutState>();
+
+    if (!exerciseModel.isLoaded) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("New Workout"),
-      ),
+      appBar: AppBar(title: const Text("New Workout")),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           children: [
             TextField(
-              controller: _nameController,
+              controller: workoutState.nameController,
               decoration: const InputDecoration(labelText: "Workout Name"),
             ),
             const SizedBox(height: 10),
-            Text("Start: ${startTime.toLocal()}"),
-            if (endTime != null) Text("End: ${endTime!.toLocal()}"),
+            Text("Start: ${workoutState.startTime.toLocal()}"),
+            if (workoutState.endTime != null)
+              Text("End: ${workoutState.endTime!.toLocal()}"),
             const SizedBox(height: 10),
-
-            // Routine dropdown
             DropdownButton<String>(
               hint: const Text("Select Routine (optional)"),
-              value: selectedRoutine,
+              value: workoutState.selectedRoutine,
               items: ["Push", "Pull", "Legs"]
                   .map((r) => DropdownMenuItem(value: r, child: Text(r)))
                   .toList(),
               onChanged: (val) {
-                setState(() {
-                  selectedRoutine = val;
-                });
+                workoutState.selectedRoutine = val;
+                workoutState.notifyListeners();
               },
             ),
-
             const Divider(height: 20),
-
-            // Exercise list
             Expanded(
               child: ListView.builder(
-                itemCount: exercises.length,
+                itemCount: workoutState.exercises.length,
                 itemBuilder: (context, index) {
-                  final exercise = exercises[index];
+                  final exercise = workoutState.exercises[index];
                   return Card(
                     child: ListTile(
                       title: Text(exercise["name"]),
@@ -234,7 +224,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                           ...(exercise["sets"] as List).map((set) => Text(
                               "Reps: ${set['reps']} | Weight: ${set['weight']}kg")),
                           TextButton(
-                            onPressed: () => _addSet(index),
+                            onPressed: () => _addSetDialog(context, index),
                             child: const Text("Add Set"),
                           )
                         ],
@@ -244,19 +234,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 },
               ),
             ),
-
             ElevatedButton.icon(
-              onPressed: _addExerciseDialog,
+              onPressed: () => _addExerciseDialog(context),
               icon: const Icon(Icons.add),
               label: const Text("Add Exercise"),
             ),
             const SizedBox(height: 20),
-
             ElevatedButton(
-              onPressed: _finishWorkout,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-              ),
+              onPressed: () => workoutState.finishWorkout(context),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
               child: const Text("Finish Workout"),
             ),
           ],
