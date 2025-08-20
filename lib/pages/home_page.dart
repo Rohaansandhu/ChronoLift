@@ -89,7 +89,7 @@ class HomePage extends StatelessWidget {
                               margin: const EdgeInsets.symmetric(
                                   horizontal: 16, vertical: 8),
                               child: ListTile(
-                                title: Text(logData['title'] ?? 'Workout'),
+                                title: Text(logData['name'] ?? 'Workout'),
                                 subtitle: Text(
                                   "${date.toLocal()}",
                                   style: TextStyle(
