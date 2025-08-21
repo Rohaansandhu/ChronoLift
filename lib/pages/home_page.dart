@@ -1,3 +1,4 @@
+import 'package:chronolift/models/workout_state.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -49,7 +50,7 @@ class HomePage extends StatelessWidget {
                   shineDirection: ShineDirection.leftToRight,
                   iconPosition: IconPosition.leading,
                   tooltip: 'Start a new workout',
-                  textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                  textStyle: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
                   borderRadius: 16.0,
                   elevation: 4.0,
                   shadowColor: Colors.black54,
