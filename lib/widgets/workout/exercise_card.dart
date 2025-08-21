@@ -47,27 +47,9 @@ class ExerciseCard extends StatelessWidget {
                 child: Row(
                   children: [
                     Text(
-                      "Set ${setIndex + 1}:",
+                      "${setIndex + 1}:",
                       style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                         fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: InlineEditableField(
-                        exerciseIndex: exerciseIndex,
-                        setIndex: setIndex,
-                        fieldType: "reps",
-                        value: set['reps'].toString(),
-                        label: "Reps",
-                        onChanged: (value) {
-                          workoutState.updateSet(
-                            exerciseIndex,
-                            setIndex,
-                            int.tryParse(value) ?? 0,
-                            set['weight']?.toDouble() ?? 0.0,
-                          );
-                        },
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -84,6 +66,24 @@ class ExerciseCard extends StatelessWidget {
                             setIndex,
                             set['reps'] ?? 0,
                             double.tryParse(value) ?? 0.0,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: InlineEditableField(
+                        exerciseIndex: exerciseIndex,
+                        setIndex: setIndex,
+                        fieldType: "reps",
+                        value: set['reps'].toString(),
+                        label: "Reps",
+                        onChanged: (value) {
+                          workoutState.updateSet(
+                            exerciseIndex,
+                            setIndex,
+                            int.tryParse(value) ?? 0,
+                            set['weight']?.toDouble() ?? 0.0,
                           );
                         },
                       ),
