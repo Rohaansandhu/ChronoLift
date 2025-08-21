@@ -11,14 +11,14 @@ class InlineEditableField extends StatelessWidget {
   final Function(String) onChanged;
 
   const InlineEditableField({
-    Key? key,
+    super.key,
     required this.exerciseIndex,
     required this.setIndex,
     required this.fieldType,
     required this.value,
     required this.label,
     required this.onChanged,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +27,7 @@ class InlineEditableField extends StatelessWidget {
     final isEditing = workoutState.isFieldEditing(exerciseIndex, setIndex, fieldType);
     
     if (isEditing) {
-      final controller = TextEditingController(text: value == "0" ? "" : value);
+      final controller = TextEditingController(text: value == "0" || value == "0.0" ? "" : value);
       
       return TextField(
         controller: controller,
@@ -64,7 +64,7 @@ class InlineEditableField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          value == "0" ? 'Tap to edit $label' : '$label: $value',
+          (value == "0" || value == "0.0") ? 'Tap to edit $label' : '$label: $value',
           style: TextStyle(
             color: value == "0" 
                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)

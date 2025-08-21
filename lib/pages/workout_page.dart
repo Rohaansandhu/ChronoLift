@@ -8,7 +8,7 @@ import '../widgets/workout/exercise_selector_sheet.dart';
 import '../widgets/dialogs/exit_confirmation_dialog.dart';
 
 class WorkoutPage extends StatefulWidget {
-  const WorkoutPage({Key? key}) : super(key: key);
+  const WorkoutPage({super.key});
 
   @override
   State<WorkoutPage> createState() => _WorkoutPageState();
@@ -53,11 +53,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
     return PopScope(
       canPop: false, // Prevent immediate popping
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
           final shouldExit = await ExitConfirmationDialog.show(context);
           if (shouldExit && context.mounted) {
-            Navigator.of(context).pop();
+            Navigator.of(context).pop(true); // you can pass a result if needed
           }
         }
       },

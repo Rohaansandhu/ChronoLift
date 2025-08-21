@@ -8,10 +8,10 @@ class ExerciseCard extends StatelessWidget {
   final Map<String, dynamic> exercise;
 
   const ExerciseCard({
-    Key? key,
+    super.key,
     required this.exerciseIndex,
     required this.exercise,
-  }) : super(key: key);
+  });
 
   void _addNewSet(BuildContext context) {
     final workoutState = context.read<WorkoutState>();
@@ -91,7 +91,7 @@ class ExerciseCard extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             
             const SizedBox(height: 8),
             Center(
