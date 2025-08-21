@@ -5,7 +5,7 @@ import '../../models/workout_state.dart';
 class InlineEditableField extends StatelessWidget {
   final int exerciseIndex;
   final int setIndex;
-  final String fieldType; // "reps" or "weight"
+  final String fieldType; // weight, reps, notes
   final String value;
   final String label;
   final Function(String) onChanged;
@@ -24,11 +24,14 @@ class InlineEditableField extends StatelessWidget {
   Widget build(BuildContext context) {
     final workoutState = context.watch<WorkoutState>();
     final fieldId = "${exerciseIndex}_${setIndex}_$fieldType";
-    final isEditing = workoutState.isFieldEditing(exerciseIndex, setIndex, fieldType);
-    
+    final isEditing =
+        workoutState.isFieldEditing(exerciseIndex, setIndex, fieldType);
+
     if (isEditing) {
-      final controller = TextEditingController(text: value == "0" || value == "0.0" ? "" : value);
-      
+      final bool showDefaultValue = value == "0" || value == "0.0" || value == "";
+      final controller = TextEditingController(
+          text: showDefaultValue ? "" : value);
+
       return TextField(
         controller: controller,
         keyboardType: TextInputType.number,
@@ -37,7 +40,8 @@ class InlineEditableField extends StatelessWidget {
           labelText: label,
           border: const OutlineInputBorder(),
           isDense: true,
-          contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
         onSubmitted: (newValue) {
           onChanged(newValue);
@@ -49,7 +53,7 @@ class InlineEditableField extends StatelessWidget {
         },
       );
     }
-    
+
     return InkWell(
       onTap: () {
         workoutState.setEditingField(fieldId);
@@ -66,7 +70,7 @@ class InlineEditableField extends StatelessWidget {
         child: Text(
           (value == "0" || value == "0.0") ? label : '$label: $value',
           style: TextStyle(
-            color: value == "0" 
+            color: value == "0"
                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
                 : null,
           ),

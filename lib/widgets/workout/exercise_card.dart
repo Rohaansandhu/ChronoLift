@@ -15,7 +15,7 @@ class ExerciseCard extends StatelessWidget {
 
   void _addNewSet(BuildContext context) {
     final workoutState = context.read<WorkoutState>();
-    workoutState.addSet(exerciseIndex, 0, 0.0);
+    workoutState.addSet(exerciseIndex, 0, 0.0, "");
   }
 
   @override
@@ -53,7 +53,8 @@ class ExerciseCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: 80,
                       child: InlineEditableField(
                         exerciseIndex: exerciseIndex,
                         setIndex: setIndex,
@@ -66,12 +67,14 @@ class ExerciseCard extends StatelessWidget {
                             setIndex,
                             set['reps'] ?? 0,
                             double.tryParse(value) ?? 0.0,
+                            set['notes']?.toString() ?? ""
                           );
                         },
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Expanded(
+                    SizedBox(
+                      width: 80,
                       child: InlineEditableField(
                         exerciseIndex: exerciseIndex,
                         setIndex: setIndex,
@@ -84,6 +87,26 @@ class ExerciseCard extends StatelessWidget {
                             setIndex,
                             int.tryParse(value) ?? 0,
                             set['weight']?.toDouble() ?? 0.0,
+                            set['notes']?.toString() ?? ""
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: InlineEditableField(
+                        exerciseIndex: exerciseIndex,
+                        setIndex: setIndex,
+                        fieldType: "notes",
+                        value: set['notes'].toString(),
+                        label: "Notes",
+                        onChanged: (value) {
+                          workoutState.updateSet(
+                            exerciseIndex,
+                            setIndex,
+                            set['reps'] ?? 0,
+                            set['weight']?.toDouble() ?? 0.0,
+                            value
                           );
                         },
                       ),

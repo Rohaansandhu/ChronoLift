@@ -31,13 +31,13 @@ class WorkoutState extends ChangeNotifier {
     notifyListeners();
   }
 
-  void addSet(int index, int reps, double weight) {
-    exercises[index]["sets"].add({"reps": reps, "weight": weight});
+  void addSet(int index, int reps, double weight, String notes) {
+    exercises[index]["sets"].add({"reps": reps, "weight": weight, "notes": notes});
     notifyListeners();
   }
 
-  void updateSet(int exerciseIndex, int setIndex, int reps, double weight) {
-    exercises[exerciseIndex]["sets"][setIndex] = {"reps": reps, "weight": weight};
+  void updateSet(int exerciseIndex, int setIndex, int reps, double weight, String notes) {
+    exercises[exerciseIndex]["sets"][setIndex] = {"reps": reps, "weight": weight, "notes": notes};
     notifyListeners();
   }
 
