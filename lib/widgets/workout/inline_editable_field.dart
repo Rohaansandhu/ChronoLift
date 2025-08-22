@@ -68,7 +68,7 @@ class InlineEditableField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          (value == "0" || value == "0.0") ? label : '$label: $value',
+          (value == "0" || value == "0.0") ? label : '$label $value',
           style: TextStyle(
             color: value == "0"
                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)

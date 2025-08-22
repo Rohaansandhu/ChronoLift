@@ -37,6 +37,48 @@ class ExerciseCard extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             
+            // Header row with labels
+            if (sets.isNotEmpty) ...[
+              Row(
+                children: [
+                  const SizedBox(width: 32), // Space for set number
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      "Weight",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  SizedBox(
+                    width: 80,
+                    child: Text(
+                      "Reps",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      "Notes",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+            ],
+            
             // Display existing sets with inline editing
             ...sets.asMap().entries.map((entry) {
               final setIndex = entry.key;
@@ -60,7 +102,7 @@ class ExerciseCard extends StatelessWidget {
                         setIndex: setIndex,
                         fieldType: "weight",
                         value: set['weight'].toString(),
-                        label: "Weight",
+                        label: "", // Remove internal label
                         onChanged: (value) {
                           workoutState.updateSet(
                             exerciseIndex,
@@ -80,7 +122,7 @@ class ExerciseCard extends StatelessWidget {
                         setIndex: setIndex,
                         fieldType: "reps",
                         value: set['reps'].toString(),
-                        label: "Reps",
+                        label: "", // Remove internal label
                         onChanged: (value) {
                           workoutState.updateSet(
                             exerciseIndex,
@@ -99,7 +141,7 @@ class ExerciseCard extends StatelessWidget {
                         setIndex: setIndex,
                         fieldType: "notes",
                         value: set['notes'].toString(),
-                        label: "Notes",
+                        label: "", // Remove internal label
                         onChanged: (value) {
                           workoutState.updateSet(
                             exerciseIndex,
