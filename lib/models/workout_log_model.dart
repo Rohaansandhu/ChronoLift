@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:logger/logger.dart';
 
 class WorkoutLogModel extends ChangeNotifier {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  final Logger logger = Logger();
 
   final int _pageSize = 20;
   DocumentSnapshot? _lastDocument;
@@ -101,7 +104,7 @@ class WorkoutLogModel extends ChangeNotifier {
 
     // If there are new logs, add them to the beginning of our list
     if (snapshot.docs.isNotEmpty) {
-      print("Found ${snapshot.docs.length} new logs"); // TODO: Create logging system
+      logger.i("Found ${snapshot.docs.length} new logs");
 
       // Insert new logs at the beginning (they're already in descending order)
       _logs.insertAll(0, snapshot.docs);
