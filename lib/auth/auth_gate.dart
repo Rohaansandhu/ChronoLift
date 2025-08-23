@@ -1,3 +1,4 @@
+import 'package:chronolift/pages/main_navbar_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:chronolift/pages/home_page.dart';
@@ -20,7 +21,7 @@ class AuthGate extends StatelessWidget {
 
         // Logged in
         if (snapshot.hasData) {
-          return const HomePage();
+          return const MainNavPage();
         }
 
         // Not logged in
