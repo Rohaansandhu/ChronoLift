@@ -1,3 +1,4 @@
+import 'package:chronolift/pages/calendar_page.dart';
 import 'package:chronolift/pages/settings_page.dart';
 import 'package:chronolift/pages/stats_page.dart';
 import 'package:flutter/material.dart';
@@ -22,6 +23,7 @@ class _MainNavPageState extends State<MainNavPage> {
     pages = [
       const HomePage(),
       const StatsPage(),
+      const CalendarPage(),
       const SettingsPage(),
     ];
   }
@@ -49,6 +51,10 @@ class _MainNavPageState extends State<MainNavPage> {
             NavigationDestination(
               icon: Icon(Icons.bar_chart),
               label: "Stats",
+            ),
+            NavigationDestination(
+              icon: Icon(Icons.calendar_month_outlined), 
+              label: "Calendar"
             ),
             NavigationDestination(
               icon: Icon(Icons.settings),
