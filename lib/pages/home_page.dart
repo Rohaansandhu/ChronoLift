@@ -1,4 +1,5 @@
 import 'package:chronolift/models/workout_state.dart';
+import 'package:chronolift/widgets/home/workout_log_widget.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -72,7 +73,8 @@ class HomePage extends StatelessWidget {
                           }
                           return false;
                         },
-                        child: ListView.builder(
+                        child: 
+                        ListView.builder(
                           itemCount: model.logs.length + (model.isLoadingMore ? 1 : 0),
                           itemBuilder: (context, index) {
                             if (index == model.logs.length) {
@@ -86,18 +88,7 @@ class HomePage extends StatelessWidget {
                                 model.logs[index].data() as Map<String, dynamic>;
                             final date = (logData['date'] as Timestamp).toDate();
 
-                            return Card(
-                              margin: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 8),
-                              child: ListTile(
-                                title: Text(logData['name'] ?? 'Workout'),
-                                subtitle: Text(
-                                  "${date.toLocal()}",
-                                  style: TextStyle(
-                                      color: Theme.of(context).colorScheme.secondary),
-                                ),
-                              ),
-                            );
+                            return WorkoutLogCard(workoutLog: logData);
                           },
                         ),
                       ),
