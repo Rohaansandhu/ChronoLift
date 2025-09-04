@@ -1,35 +1,56 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../models/workout_state.dart';
 
 class WorkoutHeader extends StatelessWidget {
-  const WorkoutHeader({Key? key}) : super(key: key);
+  final TextEditingController nameController;
+  final DateTime startTime;
+  final DateTime? endTime;
+  final String? selectedRoutine;
+  final List<String> availableRoutines;
+  final Function(String?) onRoutineChanged;
+  final Function(String)? onNameChanged;
+
+  const WorkoutHeader({
+    Key? key,
+    required this.nameController,
+    required this.startTime,
+    this.endTime,
+    this.selectedRoutine,
+    this.availableRoutines = const ["Push", "Pull", "Legs"],
+    required this.onRoutineChanged,
+    this.onNameChanged,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    final workoutState = context.watch<WorkoutState>();
-    
     return Column(
       children: [
         TextField(
-          controller: workoutState.nameController,
+          controller: nameController,
           decoration: const InputDecoration(labelText: "Workout Name"),
+          onChanged: onNameChanged,
         ),
         const SizedBox(height: 10),
-        Text("Start: ${workoutState.startTime.toLocal()}"),
-        if (workoutState.endTime != null)
-          Text("End: ${workoutState.endTime!.toLocal()}"),
+        Text(
+          "Start: ${startTime.toLocal()}",
+          style: Theme.of(context).textTheme.bodyMedium,
+        ),
+        if (endTime != null)
+          Text(
+            "End: ${endTime!.toLocal()}",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
         const SizedBox(height: 10),
         DropdownButton<String>(
           hint: const Text("Select Routine (optional)"),
-          value: workoutState.selectedRoutine,
-          items: ["Push", "Pull", "Legs"]
-              .map((r) => DropdownMenuItem(value: r, child: Text(r)))
+          value: selectedRoutine,
+          isExpanded: true,
+          items: availableRoutines
+              .map((routine) => DropdownMenuItem(
+                    value: routine,
+                    child: Text(routine),
+                  ))
               .toList(),
-          onChanged: (val) {
-            workoutState.selectedRoutine = val;
-            workoutState.notifyListeners();
-          },
+          onChanged: onRoutineChanged,
         ),
       ],
     );

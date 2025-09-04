@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class WorkoutLogCard extends StatelessWidget {
@@ -12,7 +11,7 @@ class WorkoutLogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Parse workout data
-    final DateTime workoutDate = (workoutLog['date'] as Timestamp).toDate();
+    final DateTime workoutDate = (workoutLog['date']).toDate();
     final String workoutName = workoutLog['name'] ?? 'Unnamed Workout';
     final int durationMinutes = _calculateDuration();
     final List<String> exerciseNames = _extractExerciseNames();
@@ -197,8 +196,8 @@ class WorkoutLogCard extends StatelessWidget {
   //TODO: Add duration calculation in workout page
   int _calculateDuration() {
     // Calculate from start/end time
-    final DateTime startTime = (workoutLog['startTime'] as Timestamp).toDate();
-    final DateTime endTime = (workoutLog['endTime'] as Timestamp).toDate();
+    final DateTime startTime = (workoutLog['startTime']).toDate();
+    final DateTime endTime = (workoutLog['endTime']).toDate();
 
     return endTime.difference(startTime).inMinutes;
   }
@@ -269,43 +268,3 @@ class WorkoutLogCard extends StatelessWidget {
     return days[weekday - 1];
   }
 }
-
-// Example usage in your home page:
-/*
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: StreamBuilder<QuerySnapshot>(
-        stream: FirebaseFirestore.instance
-            .collection('users/${FirebaseAuth.instance.currentUser!.uid}/workouts')
-            .orderBy('date', descending: true)
-            .limit(20)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          }
-
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final workouts = snapshot.data!.docs;
-
-          return ListView.builder(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            itemCount: workouts.length,
-            itemBuilder: (context, index) {
-              final workoutData = workouts[index].data() as Map<String, dynamic>;
-              return WorkoutLogCard(workoutLog: workoutData);
-            },
-          );
-        },
-      ),
-    );
-  }
-}
-*/

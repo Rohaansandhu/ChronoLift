@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
 
@@ -33,34 +33,62 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _loading = true);
     try {
-      await _auth.registerWithEmail(
+      final response = await _auth.registerWithEmail(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
+      
       if (!mounted) return;
-      Navigator.of(context).pop(); // back to Login (AuthGate will route to Home after sign-in)
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Account created. You are now signed in.')),
-      );
-    } on FirebaseAuthException catch (e) {
+      
+      // Check if email confirmation is required
+      if (response.user != null && response.user!.emailConfirmedAt == null) {
+        // Email confirmation required
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Please check your email and click the confirmation link to complete registration.'),
+            duration: Duration(seconds: 5),
+          ),
+        );
+      } else {
+        // Registration successful and user is signed in
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Account created. You are now signed in.')),
+        );
+      }
+    } on AuthException catch (e) {
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(_friendlyError(e))),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  String _friendlyError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'email-already-in-use':
+  String _friendlyError(AuthException e) {
+    switch (e.message.toLowerCase()) {
+      case 'user already registered':
+      case 'email address already in use':
         return 'An account already exists for that email.';
-      case 'invalid-email':
+      case 'invalid email':
+      case 'unable to validate email address: invalid format':
         return 'That email looks invalid.';
-      case 'weak-password':
-        return 'Password is too weak.';
+      case 'password is too weak':
+      case 'password should be at least 6 characters':
+        return 'Password must be at least 6 characters long.';
+      case 'signup is disabled':
+        return 'New registrations are currently disabled.';
       default:
-        return 'Auth error: ${e.code}';
+        return e.message.isNotEmpty 
+            ? e.message 
+            : 'Registration failed. Please try again.';
     }
   }
 

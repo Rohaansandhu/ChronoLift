@@ -1,7 +1,6 @@
 import 'package:chronolift/pages/main_navbar_page.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:chronolift/pages/home_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/pages/login_page.dart';
 
 class AuthGate extends StatelessWidget {
@@ -9,18 +8,28 @@ class AuthGate extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
+    return StreamBuilder<AuthState>(
+      stream: Supabase.instance.client.auth.onAuthStateChange,
       builder: (context, snapshot) {
-        // Loading state while Firebase checks auth
+        // Loading state while Supabase checks auth
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        // Logged in
-        if (snapshot.hasData) {
+        // Check if we have auth data
+        final authState = snapshot.data;
+        final user = authState?.session?.user;
+
+        // Logged in and email is confirmed (if email confirmation is required)
+        if (user != null) {
+          // Optional: Check if email confirmation is required
+          // If your Supabase project requires email confirmation, uncomment this:
+          // if (user.emailConfirmedAt == null) {
+          //   return const EmailConfirmationPage();
+          // }
+          
           return const MainNavPage();
         }
 

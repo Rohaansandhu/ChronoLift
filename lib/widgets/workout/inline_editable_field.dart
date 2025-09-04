@@ -1,14 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../../models/workout_state.dart';
 
-class InlineEditableField extends StatelessWidget {
+class InlineEditableField extends StatefulWidget {
   final int exerciseIndex;
   final int setIndex;
   final String fieldType; // weight, reps, notes
   final String value;
   final String label;
   final Function(String) onChanged;
+  final bool isEditing;
+  final VoidCallback? onStartEditing;
+  final VoidCallback? onStopEditing;
 
   const InlineEditableField({
     super.key,
@@ -18,46 +19,100 @@ class InlineEditableField extends StatelessWidget {
     required this.value,
     required this.label,
     required this.onChanged,
+    this.isEditing = false,
+    this.onStartEditing,
+    this.onStopEditing,
   });
 
   @override
+  State<InlineEditableField> createState() => _InlineEditableFieldState();
+}
+
+class _InlineEditableFieldState extends State<InlineEditableField> {
+  late TextEditingController _controller;
+  late bool _isEditing;
+
+  @override
+  void initState() {
+    super.initState();
+    _isEditing = widget.isEditing;
+    _initializeController();
+  }
+
+  @override
+  void didUpdateWidget(InlineEditableField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isEditing != widget.isEditing) {
+      _isEditing = widget.isEditing;
+      if (_isEditing) {
+        _initializeController();
+      }
+    }
+  }
+
+  void _initializeController() {
+    final bool showDefaultValue = 
+        widget.value == "0" || widget.value == "0.0" || widget.value == "";
+    _controller = TextEditingController(
+      text: showDefaultValue ? "" : widget.value,
+    );
+  }
+
+  void _handleSubmit(String newValue) {
+    widget.onChanged(newValue);
+    _stopEditing();
+  }
+
+  void _handleTapOutside() {
+    widget.onChanged(_controller.text);
+    _stopEditing();
+  }
+
+  void _startEditing() {
+    setState(() {
+      _isEditing = true;
+    });
+    _initializeController();
+    widget.onStartEditing?.call();
+  }
+
+  void _stopEditing() {
+    setState(() {
+      _isEditing = false;
+    });
+    widget.onStopEditing?.call();
+    _controller.dispose();
+  }
+
+  @override
+  void dispose() {
+    if (_isEditing) {
+      _controller.dispose();
+    }
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final workoutState = context.watch<WorkoutState>();
-    final fieldId = "${exerciseIndex}_${setIndex}_$fieldType";
-    final isEditing =
-        workoutState.isFieldEditing(exerciseIndex, setIndex, fieldType);
-
-    if (isEditing) {
-      final bool showDefaultValue = value == "0" || value == "0.0" || value == "";
-      final controller = TextEditingController(
-          text: showDefaultValue ? "" : value);
-
+    if (_isEditing) {
       return TextField(
-        controller: controller,
+        controller: _controller,
         keyboardType: TextInputType.number,
         autofocus: true,
         decoration: InputDecoration(
-          labelText: label,
+          labelText: widget.label,
           border: const OutlineInputBorder(),
           isDense: true,
           contentPadding:
               const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
         ),
-        onSubmitted: (newValue) {
-          onChanged(newValue);
-          workoutState.setEditingField(null);
-        },
-        onTapOutside: (_) {
-          onChanged(controller.text);
-          workoutState.setEditingField(null);
-        },
+        onSubmitted: _handleSubmit,
+        onTapOutside: (_) => _handleTapOutside(),
       );
     }
 
     return InkWell(
-      onTap: () {
-        workoutState.setEditingField(fieldId);
-      },
+      onTap: _startEditing,
       child: Container(
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
@@ -68,9 +123,11 @@ class InlineEditableField extends StatelessWidget {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          (value == "0" || value == "0.0") ? label : '$label $value',
+          (widget.value == "0" || widget.value == "0.0") 
+              ? widget.label 
+              : '${widget.label} ${widget.value}',
           style: TextStyle(
-            color: value == "0"
+            color: widget.value == "0"
                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
                 : null,
           ),

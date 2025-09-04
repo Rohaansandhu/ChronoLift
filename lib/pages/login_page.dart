@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
 import 'register_page.dart';
@@ -32,12 +32,22 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _loading = true);
     try {
-      await _auth.loginWithEmail(
+      final response = await _auth.signInWithEmail(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
+
+      if (!mounted) return;
+
+      // Check if email needs to be confirmed
+      if (response.user != null && response.user!.emailConfirmedAt == null) {
+        _showError('Please confirm your email before signing in. Check your inbox for a confirmation link.');
+        await _auth.signOut(); // Sign out the unconfirmed user
+        return;
+      }
+
       // AuthGate stream will navigate to Home automatically.
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       _showError(_friendlyError(e));
     } catch (e) {
       _showError('Something went wrong. Please try again.');
@@ -57,29 +67,53 @@ class _LoginPageState extends State<LoginPage> {
       await _auth.sendPasswordReset(email: email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent.')),
+        const SnackBar(
+          content: Text('Password reset email sent. Check your inbox.'),
+          duration: Duration(seconds: 4),
+        ),
       );
-    } on FirebaseAuthException catch (e) {
+    } on AuthException catch (e) {
       _showError(_friendlyError(e));
+    } catch (e) {
+      _showError('Failed to send reset email. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
     }
   }
 
-  String _friendlyError(FirebaseAuthException e) {
-    switch (e.code) {
-      case 'invalid-email':
+  String _friendlyError(AuthException e) {
+    final message = e.message.toLowerCase();
+    
+    if (message.contains('invalid login credentials') || 
+        message.contains('email not confirmed') ||
+        message.contains('invalid email or password')) {
+      return 'Invalid email or password.';
+    }
+    
+    switch (message) {
+      case 'invalid email':
+      case 'unable to validate email address: invalid format':
         return 'That email looks invalid.';
-      case 'user-disabled':
-        return 'This account has been disabled.';
-      case 'user-not-found':
+      case 'user not found':
+      case 'email not found':
         return 'No user found with that email.';
-      case 'wrong-password':
+      case 'invalid password':
+      case 'wrong password':
         return 'Incorrect password.';
-      case 'too-many-requests':
+      case 'too many requests':
+      case 'rate limit exceeded':
         return 'Too many attempts. Try again later.';
+      case 'user disabled':
+      case 'account disabled':
+        return 'This account has been disabled.';
+      case 'email not confirmed':
+        return 'Please confirm your email before signing in.';
+      case 'signup disabled':
+        return 'Sign-in is currently disabled.';
       default:
-        return 'Auth error: ${e.code}';
+        return e.message.isNotEmpty 
+            ? e.message 
+            : 'Sign-in failed. Please try again.';
     }
   }
 
