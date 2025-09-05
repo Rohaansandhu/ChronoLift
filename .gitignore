@@ -7,6 +7,7 @@ firepit-log.txt
 
 # Environment files (local configs)
 /.env.*
+.env
 
 # Miscellaneous
 *.class
