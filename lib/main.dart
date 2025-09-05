@@ -6,7 +6,6 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Theme/lightmode.dart';
 import 'Theme/darkmode.dart';
 import 'models/exercise_model.dart';
-import 'dart:io';
 
 
 void main() async {
