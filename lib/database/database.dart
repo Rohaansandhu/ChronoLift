@@ -9,16 +9,19 @@ import 'tables/workouts_table.dart';
 import 'tables/exercises_table.dart';
 import 'tables/workout_exercises_table.dart';
 import 'tables/workout_sets_table.dart';
+import 'tables/users_table.dart';
+import 'tables/categories_table.dart';
 
 // Import DAOs
 import 'dao/workout_dao.dart';
 import 'dao/exercise_dao.dart';
+import 'dao/user_dao.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
-  tables: [Workouts, Exercises, WorkoutExercises, Sets],
-  daos: [WorkoutDao, ExerciseDao],
+  tables: [Workouts, Exercises, WorkoutExercises, Sets, Users, Categories],
+  daos: [WorkoutDao, ExerciseDao, UserDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -28,38 +31,38 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
-    onCreate: (Migrator m) async {
-      await m.createAll();
-      
-      // Insert some default exercises
-      await _insertDefaultExercises();
-    },
-    onUpgrade: (Migrator m, int from, int to) async {
-      // Handle database upgrades here
-    },
-  );
+        onCreate: (Migrator m) async {
+          await m.createAll();
 
-  Future<void> _insertDefaultExercises() async {
-    final defaultExercises = [
-      ExercisesCompanion.insert(
-        name: 'Bench Press',
-        category: 'Chest',
-      ),
-      ExercisesCompanion.insert(
-        name: 'Squats',
-        category: 'Legs',
-      ),
-      ExercisesCompanion.insert(
-        name: 'Deadlift',
-        category: 'Back',
-      ),
-      // Add more default exercises
-    ];
+          // Insert some default exercises
+          // await _insertDefaultExercises();
+        },
+        onUpgrade: (Migrator m, int from, int to) async {
+          // Handle database upgrades here
+        },
+      );
 
-    for (final exercise in defaultExercises) {
-      await into(exercises).insertOnConflictUpdate(exercise);
-    }
-  }
+  // Future<void> _insertDefaultExercises() async {
+  //   final defaultExercises = [
+  //     ExercisesCompanion.insert(
+  //       name: 'Bench Press',
+  //       categoryId: 'Chest',
+  //     ),
+  //     ExercisesCompanion.insert(
+  //       name: 'Squats',
+  //       categoryId: 'Legs',
+  //     ),
+  //     ExercisesCompanion.insert(
+  //       name: 'Deadlift',
+  //       categoryId: 'Back',
+  //     ),
+  //     // Add more default exercises
+  //   ];
+
+  //   for (final exercise in defaultExercises) {
+  //     await into(exercises).insertOnConflictUpdate(exercise);
+  //   }
+  // }
 }
 
 LazyDatabase _openConnection() {

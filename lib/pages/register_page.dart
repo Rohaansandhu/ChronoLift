@@ -1,7 +1,12 @@
+import 'package:chronolift/database/database.dart' as db;
+import 'package:chronolift/services/global_user_service.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
+import '../database/database_provider.dart';
+import 'package:chronolift/database/dao/user_dao.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -37,25 +42,32 @@ class _RegisterPageState extends State<RegisterPage> {
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
-      
+
       if (!mounted) return;
-      
+
       // Check if email confirmation is required
       if (response.user != null && response.user!.emailConfirmedAt == null) {
         // Email confirmation required
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Please check your email and click the confirmation link to complete registration.'),
+            content: Text(
+                'Please check your email and click the confirmation link to complete registration.'),
             duration: Duration(seconds: 5),
           ),
         );
       } else {
-        // Registration successful and user is signed in
-        Navigator.of(context).pop();
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Account created. You are now signed in.')),
-        );
+        if (response.user != null) {
+          // Add user to local Drift db
+          await _addUserToLocalDatabase(response.user!);
+
+          // Registration successful and user is signed in
+          Navigator.of(context).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+                content: Text('Account created. You are now signed in.')),
+          );
+        }
       }
     } on AuthException catch (e) {
       if (!mounted) return;
@@ -65,7 +77,8 @@ class _RegisterPageState extends State<RegisterPage> {
     } catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('An unexpected error occurred: ${e.toString()}')),
+        SnackBar(
+            content: Text('An unexpected error occurred: ${e.toString()}')),
       );
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -86,9 +99,29 @@ class _RegisterPageState extends State<RegisterPage> {
       case 'signup is disabled':
         return 'New registrations are currently disabled.';
       default:
-        return e.message.isNotEmpty 
-            ? e.message 
+        return e.message.isNotEmpty
+            ? e.message
             : 'Registration failed. Please try again.';
+    }
+  }
+
+  Future<void> _addUserToLocalDatabase(User supabaseUser) async {
+    try {
+      // 
+      await globalUser.upsertUser(
+              uuid: supabaseUser.id,
+              email: supabaseUser.email!,
+              setAsCurrent: true,
+            );
+
+    } catch (e) {
+      // Handle duplicate entry or other database errors
+      if (e.toString().contains('UNIQUE constraint failed')) {
+        // User already exists in local database, that's okay
+        print('User already exists in local database');
+      } else {
+        rethrow; // Re-throw other errors
+      }
     }
   }
 
@@ -131,8 +164,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           icon: Icon(
                             _obscure ? Icons.visibility : Icons.visibility_off,
                           ),
-                          onPressed: () =>
-                              setState(() => _obscure = !_obscure),
+                          onPressed: () => setState(() => _obscure = !_obscure),
                         ),
                       ),
                       validator: Validators.password,
@@ -164,7 +196,8 @@ class _RegisterPageState extends State<RegisterPage> {
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(strokeWidth: 2),
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
                               )
                             : const Text('Create account'),
                       ),

@@ -1,3 +1,4 @@
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/workouts_table.dart';
@@ -18,18 +19,21 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
 
   // Get all workouts
   Future<List<Workout>> getAllWorkouts() async {
-    return await (select(workouts)
-      ..orderBy([(w) => OrderingTerm.desc(w.date)]))
-      .get();
+    return await (select(workouts)..orderBy([(w) => OrderingTerm.desc(w.date)]))
+        .get();
   }
 
   // Get workout by ID with exercises and sets
   Future<WorkoutWithExercises?> getWorkoutWithExercises(int workoutId) async {
     final query = select(workouts).join([
-      leftOuterJoin(workoutExercises, workoutExercises.workoutId.equalsExp(workouts.id)),
-      leftOuterJoin(exercises, exercises.id.equalsExp(workoutExercises.exerciseId)),
-      leftOuterJoin(sets, sets.workoutExerciseId.equalsExp(workoutExercises.id)),
-    ])..where(workouts.id.equals(workoutId));
+      leftOuterJoin(
+          workoutExercises, workoutExercises.workoutId.equalsExp(workouts.id)),
+      leftOuterJoin(
+          exercises, exercises.id.equalsExp(workoutExercises.exerciseId)),
+      leftOuterJoin(
+          sets, sets.workoutExerciseId.equalsExp(workoutExercises.id)),
+    ])
+      ..where(workouts.id.equals(workoutId));
 
     final rows = await query.get();
     if (rows.isEmpty) return null;
@@ -80,16 +84,15 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     required int exerciseId,
     required int order,
     String? notes,
-    int? restTime,
   }) async {
+    final uuid = globalUser.currentUserUuid!;
     return await into(workoutExercises).insert(
       WorkoutExercisesCompanion.insert(
-        workoutId: workoutId,
-        exerciseId: exerciseId,
-        orderInWorkout: order,
-        notes: Value(notes),
-        restTime: Value(restTime),
-      ),
+          workoutId: workoutId,
+          exerciseId: exerciseId,
+          orderInWorkout: order,
+          notes: Value(notes),
+          uuid: uuid),
     );
   }
 
@@ -100,10 +103,9 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     double? weight,
     int? reps,
     int? duration,
-    double? distance,
     int? rpe,
-    bool completed = true,
   }) async {
+    final uuid = globalUser.currentUserUuid!;
     return await into(sets).insert(
       SetsCompanion.insert(
         workoutExerciseId: workoutExerciseId,
@@ -111,9 +113,8 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
         weight: Value(weight),
         reps: Value(reps),
         duration: Value(duration),
-        distance: Value(distance),
         rpe: Value(rpe),
-        completed: Value(completed),
+        uuid: uuid
       ),
     );
   }
@@ -121,27 +122,28 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
   // Get workout stats
   Future<WorkoutStats> getWorkoutStats(int workoutId) async {
     final totalSets = await (selectOnly(sets)
-      ..addColumns([sets.id.count()])
-      ..join([innerJoin(workoutExercises, workoutExercises.id.equalsExp(sets.workoutExerciseId))])
-      ..where(workoutExercises.workoutId.equals(workoutId)))
-      .getSingle();
-
-    final completedSets = await (selectOnly(sets)
-      ..addColumns([sets.id.count()])
-      ..join([innerJoin(workoutExercises, workoutExercises.id.equalsExp(sets.workoutExerciseId))])
-      ..where(workoutExercises.workoutId.equals(workoutId) & sets.completed.equals(true)))
-      .getSingle();
+          ..addColumns([sets.id.count()])
+          ..join([
+            innerJoin(workoutExercises,
+                workoutExercises.id.equalsExp(sets.workoutExerciseId))
+          ])
+          ..where(workoutExercises.workoutId.equals(workoutId)))
+        .getSingle();
 
     final totalVolume = await (selectOnly(sets)
-      ..addColumns([(sets.weight * sets.reps.cast<double>()).sum()])
-      ..join([innerJoin(workoutExercises, workoutExercises.id.equalsExp(sets.workoutExerciseId))])
-      ..where(workoutExercises.workoutId.equals(workoutId) & sets.completed.equals(true)))
-      .getSingle();
+          ..addColumns([(sets.weight * sets.reps.cast<double>()).sum()])
+          ..join([
+            innerJoin(workoutExercises,
+                workoutExercises.id.equalsExp(sets.workoutExerciseId))
+          ])
+          ..where(workoutExercises.workoutId.equals(workoutId)))
+        .getSingle();
 
     return WorkoutStats(
       totalSets: totalSets.read(sets.id.count()) ?? 0,
-      completedSets: completedSets.read(sets.id.count()) ?? 0,
-      totalVolume: totalVolume.read((sets.weight * sets.reps.cast<double>()).sum()) ?? 0.0,
+      totalVolume:
+          totalVolume.read((sets.weight * sets.reps.cast<double>()).sum()) ??
+              0.0,
     );
   }
 }
@@ -168,12 +170,10 @@ class WorkoutExerciseWithSets {
 
 class WorkoutStats {
   final int totalSets;
-  final int completedSets;
   final double totalVolume;
 
   WorkoutStats({
     required this.totalSets,
-    required this.completedSets,
     required this.totalVolume,
   });
 }

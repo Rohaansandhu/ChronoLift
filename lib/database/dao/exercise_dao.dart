@@ -15,7 +15,7 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase> with _$ExerciseDaoMixin 
 
   // Get exercises by category
   Future<List<Exercise>> getExercisesByCategory(String category) async {
-    return await (select(exercises)..where((e) => e.category.equals(category))).get();
+    return await (select(exercises)..where((e) => e.categoryId.equals(category))).get();
   }
 
   // Search exercises by name
@@ -45,9 +45,9 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase> with _$ExerciseDaoMixin 
   // Get unique categories
   Future<List<String>> getCategories() async {
     final query = selectOnly(exercises, distinct: true)
-      ..addColumns([exercises.category]);
+      ..addColumns([exercises.categoryId]);
     
     final results = await query.get();
-    return results.map((row) => row.read(exercises.category)!).toList();
+    return results.map((row) => row.read(exercises.categoryId)!).toList();
   }
 }

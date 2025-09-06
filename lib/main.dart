@@ -1,4 +1,5 @@
 import 'package:chronolift/auth/auth_gate.dart';
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,8 @@ import 'models/exercise_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  await AppInitializer.initialize();
 
   await dotenv.load();
   final supabaseUrl = dotenv.env['SUPABASE_URL']!.toString();
