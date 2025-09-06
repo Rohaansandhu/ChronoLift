@@ -17,9 +17,8 @@ ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and S
 ## ✨ Features  
 - 📊 **Track workouts** – Create workouts, add exercises, log sets, and monitor progress.  
 - 🔒 **Local-first** – All data is stored locally on your device first (using Drift/SQLite).  
-- ☁️ **Cloud sync (in-progress)** – Sign in with Supabase to sync your workouts across devices.  
-- 🧑‍💻 **User profiles** – Manage accounts with unique UUIDs and track data per user.  
-- 📈 **Workout insights** – View stats such as total sets, completed sets, and training volume.  
+- ☁️ **Cloud sync (in-progress)** – Sign in with Supabase to sync your workouts across devices.    
+- 📈 **Workout insights** – View advanced stats such as total sets completed this week, top 3 most performed exercises this month, bench press volume per workout over time, and more.  
 - 🛠️ **Custom routines** – Add your own exercises and design training plans.  
 
 
@@ -36,7 +35,7 @@ ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and S
 - A Supabase project (for auth + sync, optional)  
 
 ### Setup  
-1. Clone the repo:  
+1. Fork and Clone the repo:  
    ```bash
    git clone https://github.com/YOUR_USERNAME/chronolift.git
    cd chronolift
@@ -45,7 +44,7 @@ ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and S
     flutter pub get
 3. Generate Drift code:
     ```bash
-    flutter pub run build_runner build --delete-conflicting-outputs
+    dart run build_runner build
 4. Run the app
     ```bash
     flutter run
