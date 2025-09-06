@@ -1,4 +1,73 @@
-# ChronoLift
+# ⏱️ ChronoLift  
+
+<p align="center">
+  <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
+  <img src="https://img.shields.io/badge/Dart-0175C2?style=for-the-badge&logo=dart&logoColor=white" />
+  <img src="https://img.shields.io/badge/Drift-FF6F00?style=for-the-badge&logo=sqlite&logoColor=white" />
+  <img src="https://img.shields.io/badge/Supabase-3FCF8E?style=for-the-badge&logo=supabase&logoColor=white" />
+  <img src="https://img.shields.io/badge/License-GPLv3-blue.svg?style=for-the-badge" />
+</p>  
 
 ChronoLift - Your Personal Workout Tracker App.  
-Track your lifts, measure your time, crush your goals.
+Track your lifts, measure your progress, crush your goals.
+
+ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and Supabase. It’s designed to give you full control of your training data while still allowing seamless syncing across devices when you sign in.  
+
+---
+
+## ✨ Features  
+- 📊 **Track workouts** – Create workouts, add exercises, log sets, and monitor progress.  
+- 🔒 **Local-first** – All data is stored locally on your device first (using Drift/SQLite).  
+- ☁️ **Cloud sync (in-progress)** – Sign in with Supabase to sync your workouts across devices.  
+- 🧑‍💻 **User profiles** – Manage accounts with unique UUIDs and track data per user.  
+- 📈 **Workout insights** – View stats such as total sets, completed sets, and training volume.  
+- 🛠️ **Custom routines** – Add your own exercises and design training plans.  
+
+---
+
+## 🏗️ Tech Stack  
+- **Flutter** – Cross-platform app framework for both iOS and Android 
+- **Drift** – Local SQLite ORM with DAOs and type-safe queries  
+- **Supabase** – Cloud backend for authentication and optional data sync  
+---
+
+## 📂 Project Structure  
+lib/
+ ├─ database/
+ │   ├─ dao/          # Data Access Objects (WorkoutDao, UserDao, etc.)
+ │   ├─ tables/       # Drift table definitions (Workouts, Exercises, Sets, etc.)
+ │   └─ database.dart # AppDatabase entry point
+ ├─ models/           # Helper models (WorkoutWithExercises, WorkoutStats, etc.)
+ ├─ services/         # Authentication, user session, and sync logic
+ ├─ ui/               # Flutter widgets and screens
+ └─ main.dart         # App entry point
+
+## 🚀 Getting Started  
+
+### Prerequisites  
+- [Flutter](https://docs.flutter.dev/get-started/install) (latest stable version)  
+- [Dart](https://dart.dev/get-dart)  
+- A Supabase project (for auth + sync, optional)  
+
+### Setup  
+1. Clone the repo:  
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/chronolift.git
+   cd chronolift
+2. Install dependencies:
+    ```bash
+    flutter pub get
+3. Generate Drift code:
+    ```bash
+    flutter pub run build_runner build --delete-conflicting-outputs
+4. Run the app
+    ```bash
+    flutter run
+
+## 🤝 Contributing
+
+Pull requests and feature ideas are welcome! Please fork the repo and submit a PR.
+
+## 📜 License
+
+GPL v3 License © 2025
