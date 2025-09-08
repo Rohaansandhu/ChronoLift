@@ -26,6 +26,11 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate .env file
+        run: |
+          echo "SUPABASE_URL=$SUPABASE_URL" >> .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
       # - name: Build Android
       #   run: flutter build apk --debug
 
