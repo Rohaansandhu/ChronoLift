@@ -9,6 +9,9 @@ on:
 jobs:
   build:
     runs-on: macos-latest
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
 
     steps:
       - name: Clone repository
