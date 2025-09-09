@@ -13,4 +13,5 @@ class Sets extends Table {
   IntColumn get duration => integer().nullable()(); // seconds
   IntColumn get rpe => integer().nullable()(); // 1-10
   TextColumn get notes => text().nullable()();
+  BoolColumn get isWarmup => boolean().withDefault(Constant(false))();
 }
