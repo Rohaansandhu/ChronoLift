@@ -1,4 +1,6 @@
+import 'package:chronolift/models/workout_state.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class ExitConfirmationDialog {
   static Future<bool> show(BuildContext context) async {
@@ -16,7 +18,11 @@ class ExitConfirmationDialog {
               child: const Text("Cancel"),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () {
+                final workoutState = context.read<WorkoutStateModel>();
+                workoutState.cancelWorkout();
+                Navigator.of(context).pop(true);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,

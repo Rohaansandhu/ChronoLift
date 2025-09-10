@@ -446,6 +446,7 @@ class WorkoutStateModel extends ChangeNotifier {
 
       // Clear state
       _currentWorkout = null;
+      _name = null;
       _exercises = [];
       _startTime = null;
       _endTime = null;
@@ -478,6 +479,7 @@ class WorkoutStateModel extends ChangeNotifier {
 
       // Clear state
       _currentWorkout = null;
+      _name = null;
       _exercises = [];
       _startTime = null;
       _endTime = null;
