@@ -141,7 +141,7 @@ class WorkoutStateModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint(globalUser.currentUserUuid);
+      final globalUser = GlobalUserService.instance;
       final uuid = globalUser.currentUserUuid!;
       final workoutId = await _workoutDao.createWorkout(
         WorkoutsCompanion.insert(
@@ -434,6 +434,7 @@ class WorkoutStateModel extends ChangeNotifier {
       await _workoutDao.updateWorkout(
         _currentWorkout!.id,
         WorkoutsCompanion(
+          name: Value(_name),
           notes: Value(_notes),
           endTime: Value(_endTime),
         ),

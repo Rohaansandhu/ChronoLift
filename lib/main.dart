@@ -28,24 +28,23 @@ void main() async {
     anonKey: supabaseAnonKey,
   );
 
+  // IMPORTANT: Initializes the Drift DB, only run this once
+  final db = AppDatabase();
+  // Initialize the global user service to keep track of local user
+  final globalUser = GlobalUserService.instance;
+  globalUser.initialize(db);
+  await globalUser.loadCurrentUser(); 
+
   runApp(
     MultiProvider(
       providers: [
         // Provide a single AppDatabase instance for the whole app
         Provider<AppDatabase>(
-          create: (_) => AppDatabase(),
+          create: (_) => db,
           dispose: (_, db) => db.close(),
         ),
         // Add GlobalUserService to load the current user
-        ProxyProvider<AppDatabase, GlobalUserService>(
-          update: (_, db, __) {
-            final service = GlobalUserService.instance;
-            service.initialize(db);
-            // Eagerly load current user once at startup
-            service.loadCurrentUser();
-            return service;
-          },
-        ),
+        Provider<GlobalUserService>(create: (_) => globalUser),
         ProxyProvider<GlobalUserService, AuthService>(
           update: (_, globalUser, __) => AuthService(globalUser),
         ),

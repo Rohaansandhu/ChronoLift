@@ -74,7 +74,6 @@ class _WorkoutPageState extends State<WorkoutPage> {
           child: Column(
             children: [
               const WorkoutHeader(),
-              const Divider(height: 20),
 
               // If workout not started -> show Start Workout button
               if (workoutState.startTime == null)
