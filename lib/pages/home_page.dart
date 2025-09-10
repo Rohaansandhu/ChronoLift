@@ -1,4 +1,7 @@
+import 'package:chronolift/auth/auth_gate.dart';
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 // TODO: Import your Drift database models here
 // TODO: Import your workout models/services here
 import 'workout_page.dart';
@@ -19,9 +22,9 @@ class HomePage extends StatelessWidget {
         backgroundColor: Theme.of(context).colorScheme.primary,
         actions: [
           IconButton(
-            onPressed: () {
-              // TODO: Implement logout with Supabase auth
-              // Example: await Supabase.instance.client.auth.signOut();
+            onPressed: () async {
+              globalUser.clearCurrentUser();
+              await Supabase.instance.client.auth.signOut();
             },
             icon: const Icon(Icons.logout),
           )
@@ -40,9 +43,7 @@ class HomePage extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(
-                    builder: (context) => const WorkoutPage()
-                  ),
+                  MaterialPageRoute(builder: (context) => const WorkoutPage()),
                 );
               },
               label: 'New Workout',
@@ -93,7 +94,7 @@ class HomePage extends StatelessWidget {
                   itemBuilder: (context, index) {
                     // TODO: Replace with your workout data structure
                     final workout = workouts[index];
-                    
+
                     return Card(
                       margin: const EdgeInsets.symmetric(
                         horizontal: 16,

@@ -2,6 +2,7 @@ import 'package:chronolift/database/database.dart' as db;
 import 'package:chronolift/services/global_user_service.dart';
 import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
@@ -20,7 +21,6 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
   final _confirmCtrl = TextEditingController();
-  final _auth = AuthService();
 
   bool _obscure = true;
   bool _loading = false;
@@ -38,7 +38,8 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _loading = true);
     try {
-      final response = await _auth.registerWithEmail(
+      final authService = AuthService(context.read<GlobalUserService>());
+      final response = await authService.registerWithEmail(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
@@ -107,13 +108,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
   Future<void> _addUserToLocalDatabase(User supabaseUser) async {
     try {
-      // 
+      //
       await globalUser.upsertUser(
-              uuid: supabaseUser.id,
-              email: supabaseUser.email!,
-              setAsCurrent: true,
-            );
-
+        uuid: supabaseUser.id,
+        email: supabaseUser.email!,
+        setAsCurrent: true,
+      );
     } catch (e) {
       // Handle duplicate entry or other database errors
       if (e.toString().contains('UNIQUE constraint failed')) {

@@ -1,56 +1,90 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../models/workout_state.dart';
 
-class WorkoutHeader extends StatelessWidget {
-  final TextEditingController nameController;
-  final DateTime startTime;
-  final DateTime? endTime;
-  final String? selectedRoutine;
-  final List<String> availableRoutines;
-  final Function(String?) onRoutineChanged;
-  final Function(String)? onNameChanged;
+class WorkoutHeader extends StatefulWidget {
+  const WorkoutHeader({super.key});
 
-  const WorkoutHeader({
-    Key? key,
-    required this.nameController,
-    required this.startTime,
-    this.endTime,
-    this.selectedRoutine,
-    this.availableRoutines = const ["Push", "Pull", "Legs"],
-    required this.onRoutineChanged,
-    this.onNameChanged,
-  }) : super(key: key);
+  @override
+  State<WorkoutHeader> createState() => _WorkoutHeaderState();
+}
+
+class _WorkoutHeaderState extends State<WorkoutHeader> {
+  late TextEditingController _nameController;
+  late TextEditingController _notesController;
+
+  @override
+  void initState() {
+    super.initState();
+    final workoutState = context.read<WorkoutStateModel>();
+
+    _nameController = TextEditingController(text: workoutState.name ?? "");
+    _notesController = TextEditingController(text: workoutState.notes ?? "");
+  }
+
+  @override
+  void didUpdateWidget(covariant WorkoutHeader oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    final workoutState = context.read<WorkoutStateModel>();
+
+    // Keep controllers in sync with state if changed externally
+    if (_nameController.text != (workoutState.name ?? "")) {
+      _nameController.text = workoutState.name ?? "";
+      _nameController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _nameController.text.length),
+      );
+    }
+
+    if (_notesController.text != (workoutState.notes ?? "")) {
+      _notesController.text = workoutState.notes ?? "";
+      _notesController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _notesController.text.length),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _notesController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
+    final workoutState = context.watch<WorkoutStateModel>();
+
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Workout name
         TextField(
-          controller: nameController,
+          controller: _nameController,
           decoration: const InputDecoration(labelText: "Workout Name"),
-          onChanged: onNameChanged,
+          onChanged: workoutState.updateName,
         ),
         const SizedBox(height: 10),
-        Text(
-          "Start: ${startTime.toLocal()}",
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        if (endTime != null)
+
+        // Show start/end times if workout has started
+        if (workoutState.startTime != null)
           Text(
-            "End: ${endTime!.toLocal()}",
+            "Start: ${workoutState.startTime!.toLocal()}",
             style: Theme.of(context).textTheme.bodyMedium,
           ),
+        if (workoutState.endTime != null)
+          Text(
+            "End: ${workoutState.endTime!.toLocal()}",
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+
         const SizedBox(height: 10),
-        DropdownButton<String>(
-          hint: const Text("Select Routine (optional)"),
-          value: selectedRoutine,
-          isExpanded: true,
-          items: availableRoutines
-              .map((routine) => DropdownMenuItem(
-                    value: routine,
-                    child: Text(routine),
-                  ))
-              .toList(),
-          onChanged: onRoutineChanged,
+
+        // Notes
+        TextField(
+          controller: _notesController,
+          decoration: const InputDecoration(labelText: "Notes"),
+          onChanged: workoutState.updateNotes,
+          maxLines: null,
         ),
       ],
     );

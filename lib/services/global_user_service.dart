@@ -1,12 +1,13 @@
 import 'package:chronolift/database/dao/user_dao.dart';
 import 'package:chronolift/database/database.dart';
 import 'package:drift/drift.dart';
+import 'package:flutter/material.dart';
 
 // Global User Service - Singleton pattern
 class GlobalUserService {
   static GlobalUserService? _instance;
   static GlobalUserService get instance => _instance ??= GlobalUserService._();
-  
+
   GlobalUserService._();
 
   // Private variables
@@ -22,13 +23,13 @@ class GlobalUserService {
 
   // Get current user (cached)
   User? get currentUser => _currentUser;
-  
+
   // Get current user's UUID
   String? get currentUserUuid => _currentUser?.uuid;
-  
+
   // Get current user's email
   String? get currentUserEmail => _currentUser?.email;
-  
+
   // Get current user's ID
   int? get currentUserId => _currentUser?.id;
 
@@ -38,9 +39,10 @@ class GlobalUserService {
   // Load current user from database
   Future<User?> loadCurrentUser() async {
     if (_userDao == null) {
-      throw Exception('GlobalUserService not initialized. Call initialize() first.');
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
     }
-    
+
     _currentUser = await _userDao!.getCurrentUser();
     return _currentUser;
   }
@@ -48,12 +50,13 @@ class GlobalUserService {
   // Set current user (updates database and cache)
   Future<void> setCurrentUser(int userId) async {
     if (_userDao == null) {
-      throw Exception('GlobalUserService not initialized. Call initialize() first.');
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
     }
-    
+
     // Update database
     await _userDao!.setCurrentUser(userId, true);
-    
+
     // Update cache
     _currentUser = await _userDao!.getUserById(userId);
   }
@@ -61,9 +64,10 @@ class GlobalUserService {
   // Set current user by UUID (useful after Supabase auth)
   Future<void> setCurrentUserByUuid(String uuid) async {
     if (_userDao == null) {
-      throw Exception('GlobalUserService not initialized. Call initialize() first.');
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
     }
-    
+
     final user = await _userDao!.getUserByUuid(uuid);
     if (user != null) {
       await setCurrentUser(user.id);
@@ -72,13 +76,30 @@ class GlobalUserService {
     }
   }
 
+  // Set current user by email (used for login )
+  Future<void> setCurrentUserByEmail(String? email) async {
+    if (_userDao == null) {
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
+    }
+    if (email == null) {
+      throw Exception('User email is null');
+    }
+    final user = await _userDao!.getUserByEmail(email);
+    if (user != null) {
+      await setCurrentUser(user.id);
+    } else {
+      throw Exception('User with email $email not found in local database');
+    }
+  }
+
   // Clear current user (logout)
   Future<void> clearCurrentUser() async {
     if (_userDao == null || _currentUser == null) return;
-    
+
     // Update database
     await _userDao!.setCurrentUser(_currentUser!.id, false);
-    
+
     // Clear cache
     _currentUser = null;
   }
@@ -90,7 +111,8 @@ class GlobalUserService {
     bool setAsCurrent = true,
   }) async {
     if (_userDao == null) {
-      throw Exception('GlobalUserService not initialized. Call initialize() first.');
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
     }
 
     // Insert or update user
@@ -104,7 +126,7 @@ class GlobalUserService {
 
     // Get the user back from database
     final user = await _userDao!.getUserByUuid(uuid);
-    
+
     if (user == null) {
       throw Exception('Failed to create/update user');
     }
@@ -121,7 +143,7 @@ class GlobalUserService {
   // Refresh current user from database (useful after updates)
   Future<User?> refreshCurrentUser() async {
     if (_currentUser == null || _userDao == null) return null;
-    
+
     _currentUser = await _userDao!.getUserById(_currentUser!.id);
     return _currentUser;
   }
@@ -129,7 +151,8 @@ class GlobalUserService {
   // Watch current user changes (returns a stream)
   Stream<User?> watchCurrentUser() async* {
     if (_userDao == null) {
-      throw Exception('GlobalUserService not initialized. Call initialize() first.');
+      throw Exception(
+          'GlobalUserService not initialized. Call initialize() first.');
     }
 
     await for (final users in _userDao!.watchAllUsers()) {
@@ -148,26 +171,5 @@ extension DatabaseGlobalUser on AppDatabase {
   GlobalUserService get globalUser {
     GlobalUserService.instance.initialize(this);
     return GlobalUserService.instance;
-  }
-}
-
-// Helper class for initialization
-class AppInitializer {
-  static late AppDatabase _database;
-  
-  static Future<void> initialize() async {
-    _database = AppDatabase();
-    
-    // Initialize global user service
-    GlobalUserService.instance.initialize(_database);
-    
-    // Load current user if exists
-    await GlobalUserService.instance.loadCurrentUser();
-  }
-  
-  static AppDatabase get database => _database;
-  
-  static Future<void> dispose() async {
-    await _database.close();
   }
 }

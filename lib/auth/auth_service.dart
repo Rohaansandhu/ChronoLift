@@ -1,14 +1,18 @@
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
+  final GlobalUserService _globalUser;
+
+  AuthService(this._globalUser);
 
   // Stream of auth state changes
   Stream<AuthState> get authState => _supabase.auth.onAuthStateChange;
-  
+
   // Get current user
   User? get currentUser => _supabase.auth.currentUser;
-  
+
   // Get current session
   Session? get currentSession => _supabase.auth.currentSession;
 
@@ -21,14 +25,29 @@ class AuthService {
   Future<void> logout() => signOut();
 
   // Sign in with email and password
-  Future<AuthResponse> signInWithEmail({
+  // In AuthService
+  Future<AuthResponse> signInWithEmailAndSetUser({
     required String email,
     required String password,
   }) async {
-    return await _supabase.auth.signInWithPassword(
-      email: email,
-      password: password,
-    );
+    final response = await _supabase.auth
+        .signInWithPassword(email: email, password: password);
+
+    // If successful, update GlobalUserService
+    if (response.user != null) {
+      try {
+        await _globalUser.setCurrentUserByEmail(email);
+      } catch (e) {
+        // User doesn't exist locally, create them
+        await _globalUser.upsertUser(
+          uuid: response.user!.id,
+          email: response.user!.email!,
+          setAsCurrent: true,
+        );
+      }
+    }
+
+    return response;
   }
 
   // Legacy method name for compatibility
@@ -36,7 +55,7 @@ class AuthService {
     required String email,
     required String password,
   }) async {
-    await signInWithEmail(email: email, password: password);
+    await signInWithEmailAndSetUser(email: email, password: password);
   }
 
   // Register with email and password

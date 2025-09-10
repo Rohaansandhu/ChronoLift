@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-// TODO: Import your exercise models/services here
-// TODO: Import your workout state management here
+import '../models/exercise_model.dart';
+import '../models/workout_state.dart';
 import '../widgets/workout/workout_header.dart';
 import '../widgets/workout/exercise_card.dart';
 import '../widgets/workout/exercise_selector_sheet.dart';
@@ -16,10 +16,6 @@ class WorkoutPage extends StatefulWidget {
 
 class _WorkoutPageState extends State<WorkoutPage> {
   final ScrollController _scrollController = ScrollController();
-  
-  // TODO: Replace with your workout state management
-  // Example: List<WorkoutExercise> exercises = [];
-  // Example: Or use a provider/bloc/riverpod state management solution
 
   @override
   void dispose() {
@@ -46,34 +42,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
     _scrollToBottom();
   }
 
-  Future<void> _finishWorkout() async {
-    // TODO: Implement workout saving logic
-    // Example:
-    // final workout = Workout(
-    //   date: DateTime.now(),
-    //   exercises: exercises,
-    // );
-    // await database.workoutDao.createWorkout(workout);
-    
-    if (mounted) {
-      Navigator.of(context).pop();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Workout saved!')),
-      );
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
-    // TODO: Replace with your state management solution
-    // Example: final exerciseModel = context.watch<ExerciseModel>();
-    // Example: final exercises = context.watch<WorkoutNotifier>().exercises;
-    final exercises = <dynamic>[]; // Placeholder - replace with your exercise list
-    
-    // TODO: Replace with your loading state logic
-    final isLoaded = true; // exerciseModel?.isLoaded ?? true;
+    final exerciseModel = context.watch<ExerciseModel>();
+    final workoutState = context.watch<WorkoutStateModel>();
 
-    if (!isLoaded) {
+    if (exerciseModel.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -83,7 +57,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         if (!didPop) {
           final shouldExit = await ExitConfirmationDialog.show(context);
           if (shouldExit && context.mounted) {
-            Navigator.of(context).pop(true);
+            Navigator.of(context).pop(true); 
           }
         }
       },
@@ -99,38 +73,43 @@ class _WorkoutPageState extends State<WorkoutPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              // const WorkoutHeader(),
+              const WorkoutHeader(),
               const Divider(height: 20),
-              Expanded(
-                child: ListView.builder(
-                  controller: _scrollController,
-                  itemCount: exercises.length + 1, // +1 for the Add Exercise button
-                  itemBuilder: (context, index) {
-                    // If we're at the last index, show the Add Exercise button
-                    if (index == exercises.length) {
-                      return Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: ElevatedButton.icon(
-                          onPressed: _addExercise,
-                          icon: const Icon(Icons.add),
-                          label: const Text("Add Exercise"),
-                        ),
-                      );
-                    }
 
-                    // Otherwise, show the exercise card
-                    return ExerciseCard(
-                      exerciseIndex: index,
-                      exercise: exercises[index],
-                    );
-                  },
+              // If workout not started -> show Start Workout button
+              if (workoutState.startTime == null)
+                ElevatedButton(
+                  onPressed: () => workoutState.startWorkout(),
+                  child: const Text("Start Workout"),
                 ),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: _finishWorkout,
-                child: const Text("Finish Workout"),
-              ),
+
+              // If started -> show exercise list + Finish button
+              if (workoutState.startTime != null) ...[
+                Expanded(
+                  child: ListView.builder(
+                    controller: _scrollController,
+                    itemCount: workoutState.exercises.length + 1,
+                    itemBuilder: (context, index) {
+                      if (index == workoutState.exercises.length) {
+                        return Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: ElevatedButton.icon(
+                            onPressed: _addExercise,
+                            icon: const Icon(Icons.add),
+                            label: const Text("Add Exercise"),
+                          ),
+                        );
+                      }
+                      return ExerciseCard(exerciseIndex: index);
+                    },
+                  ),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: () => workoutState.finishWorkout(),
+                  child: const Text("Finish Workout"),
+                ),
+              ],
             ],
           ),
         ),

@@ -1,4 +1,6 @@
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
@@ -15,7 +17,7 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-  final _auth = AuthService();
+
 
   bool _obscure = true;
   bool _loading = false;
@@ -32,19 +34,13 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _loading = true);
     try {
-      final response = await _auth.signInWithEmail(
+      final authService = AuthService(context.read<GlobalUserService>());
+      final response = await authService.signInWithEmailAndSetUser(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
 
       if (!mounted) return;
-
-      // Check if email needs to be confirmed
-      if (response.user != null && response.user!.emailConfirmedAt == null) {
-        _showError('Please confirm your email before signing in. Check your inbox for a confirmation link.');
-        await _auth.signOut(); // Sign out the unconfirmed user
-        return;
-      }
 
       // AuthGate stream will navigate to Home automatically.
     } on AuthException catch (e) {
@@ -64,7 +60,8 @@ class _LoginPageState extends State<LoginPage> {
     }
     setState(() => _loading = true);
     try {
-      await _auth.sendPasswordReset(email: email);
+      final authService = AuthService(context.read<GlobalUserService>());
+      await authService.sendPasswordReset(email: email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -83,13 +80,13 @@ class _LoginPageState extends State<LoginPage> {
 
   String _friendlyError(AuthException e) {
     final message = e.message.toLowerCase();
-    
-    if (message.contains('invalid login credentials') || 
+
+    if (message.contains('invalid login credentials') ||
         message.contains('email not confirmed') ||
         message.contains('invalid email or password')) {
       return 'Invalid email or password.';
     }
-    
+
     switch (message) {
       case 'invalid email':
       case 'unable to validate email address: invalid format':
@@ -111,8 +108,8 @@ class _LoginPageState extends State<LoginPage> {
       case 'signup disabled':
         return 'Sign-in is currently disabled.';
       default:
-        return e.message.isNotEmpty 
-            ? e.message 
+        return e.message.isNotEmpty
+            ? e.message
             : 'Sign-in failed. Please try again.';
     }
   }
