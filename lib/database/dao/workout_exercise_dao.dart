@@ -1,3 +1,4 @@
+import 'package:chronolift/database/dao/workout_dao.dart';
 import 'package:chronolift/services/global_user_service.dart';
 import 'package:drift/drift.dart';
 import '../database.dart';
@@ -218,17 +219,5 @@ class WorkoutExerciseWithDetails {
   WorkoutExerciseWithDetails({
     required this.workoutExercise,
     required this.exercise,
-  });
-}
-
-class WorkoutExerciseWithSets {
-  final WorkoutExercise workoutExercise;
-  final Exercise exercise;
-  final List<WorkoutSet> sets;
-
-  WorkoutExerciseWithSets({
-    required this.workoutExercise,
-    required this.exercise,
-    required this.sets,
   });
 }

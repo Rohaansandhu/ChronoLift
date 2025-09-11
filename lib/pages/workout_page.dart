@@ -114,7 +114,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: () => workoutState.finishWorkout(),
+                  onPressed: () => workoutState.finishWorkout(context),
                   child: const Text("Finish Workout"),
                 ),
               ],

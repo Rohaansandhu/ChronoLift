@@ -2,10 +2,12 @@ import 'package:chronolift/auth/auth_gate.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/database/dao/category_dao.dart';
 import 'package:chronolift/database/dao/exercise_dao.dart';
+import 'package:chronolift/database/dao/user_dao.dart';
 import 'package:chronolift/database/dao/workout_dao.dart';
 import 'package:chronolift/database/dao/workout_exercise_dao.dart';
 import 'package:chronolift/database/dao/workout_set_dao.dart';
 import 'package:chronolift/database/database.dart';
+import 'package:chronolift/models/workout_log_model.dart';
 import 'package:chronolift/models/workout_state.dart';
 import 'package:chronolift/seed_data.dart';
 import 'package:chronolift/services/global_user_service.dart';
@@ -53,18 +55,46 @@ void main() async {
           create: (_) => db,
           dispose: (_, db) => db.close(),
         ),
-        // ExerciseModel & WorkoutStateModel depend on AppDatabase, so build it using context.read
-        ChangeNotifierProvider(
-          create: (context) {
-            return ExerciseModel(ExerciseDao(db), CategoryDao(db));
-          },
+        // DAOs
+        Provider<ExerciseDao>(
+          create: (context) => ExerciseDao(context.read<AppDatabase>()),
         ),
-        ChangeNotifierProvider(
-          create: (context) {
-            return WorkoutStateModel(
-                WorkoutDao(db), WorkoutExerciseDao(db), WorkoutSetDao(db));
-          },
-        )
+        Provider<CategoryDao>(
+          create: (context) => CategoryDao(context.read<AppDatabase>()),
+        ),
+        Provider<UserDao>(
+          create: (context) => UserDao(context.read<AppDatabase>()),
+        ),
+        Provider<WorkoutDao>(
+          create: (context) => WorkoutDao(context.read<AppDatabase>()),
+        ),
+        Provider<WorkoutExerciseDao>(
+          create: (context) => WorkoutExerciseDao(context.read<AppDatabase>()),
+        ),
+        Provider<WorkoutSetDao>(
+          create: (context) => WorkoutSetDao(context.read<AppDatabase>()),
+        ),
+        // Model providers
+        ChangeNotifierProvider<ExerciseModel>(
+          create: (context) => ExerciseModel(
+            context.read<ExerciseDao>(),
+            context.read<CategoryDao>(),
+          ),
+        ),
+        ChangeNotifierProvider<WorkoutStateModel>(
+          create: (context) => WorkoutStateModel(
+            context.read<WorkoutDao>(),
+            context.read<WorkoutExerciseDao>(),
+            context.read<WorkoutSetDao>(),
+          ),
+        ),
+        ChangeNotifierProvider<WorkoutLogModel>(
+          create: (context) => WorkoutLogModel(
+            context.read<WorkoutDao>(),
+            context.read<WorkoutExerciseDao>(),
+            context.read<WorkoutSetDao>(),
+          ),
+        ),
       ],
       child: const MyApp(),
     ),

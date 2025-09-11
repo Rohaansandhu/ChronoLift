@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:chronolift/models/workout_log_model.dart';
 import 'package:flutter/material.dart';
 import 'package:chronolift/database/database.dart';
 import 'package:chronolift/database/dao/workout_dao.dart';
@@ -7,6 +8,7 @@ import 'package:chronolift/database/dao/workout_exercise_dao.dart';
 import 'package:chronolift/database/dao/workout_set_dao.dart';
 import 'package:chronolift/services/global_user_service.dart';
 import 'package:drift/drift.dart';
+import 'package:provider/provider.dart';
 
 // Represents an exercise in the current workout with its sets
 class WorkoutExerciseState {
@@ -422,7 +424,7 @@ class WorkoutStateModel extends ChangeNotifier {
   }
 
   // Finish workout
-  Future<bool> finishWorkout() async {
+  Future<bool> finishWorkout(context) async {
     if (_currentWorkout == null) return false;
 
     _isSaving = true;
@@ -461,6 +463,13 @@ class WorkoutStateModel extends ChangeNotifier {
       return false;
     } finally {
       _isSaving = false;
+      // Refresh the workout logs on the home page
+    if (context.mounted) {
+      // Get the WorkoutLogModel from the root of the widget tree
+      final workoutLogModel = Provider.of<WorkoutLogModel>(context, listen: false);
+      await workoutLogModel.loadWorkouts();
+    }
+      Navigator.pop(context);
       notifyListeners();
     }
   }
