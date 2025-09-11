@@ -70,6 +70,7 @@ class ExerciseCard extends StatelessWidget {
                         value: set.reps?.toString() ?? '',
                         label: "Reps",
                         onChanged: (value) {
+                          // if empty default to 0
                           final reps = int.tryParse(value) ?? 0;
                           // use named params for updateSet
                           workoutState.updateSet(
@@ -92,12 +93,32 @@ class ExerciseCard extends StatelessWidget {
                         value: set.weight?.toString() ?? '',
                         label: "Weight",
                         onChanged: (value) {
+                          // If empty, default to 0
                           final weight = double.tryParse(value) ?? 0.0;
                           // use named params for updateSet
                           workoutState.updateSet(
                             exerciseIndex,
                             setIndex,
                             weight: weight,
+                          );
+                        },
+                      ),
+                    ),
+                    // Notes field
+                    Expanded(
+                      child: InlineEditableField(
+                        exerciseIndex: exerciseIndex,
+                        setIndex: setIndex,
+                        fieldType: "notes",
+                        value: set.notes?.toString() ?? '',
+                        label: "Notes",
+                        onChanged: (value) {
+                          final notes = value;
+                          // use named params for updateSet
+                          workoutState.updateSet(
+                            exerciseIndex,
+                            setIndex,
+                            notes: notes,
                           );
                         },
                       ),

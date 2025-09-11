@@ -52,7 +52,7 @@ class _InlineEditableFieldState extends State<InlineEditableField> {
 
   void _initializeController() {
     final bool showDefaultValue = 
-        widget.value == "0" || widget.value == "0.0" || widget.value == "";
+        widget.value == "";
     _controller = TextEditingController(
       text: showDefaultValue ? "" : widget.value,
     );
@@ -123,11 +123,11 @@ class _InlineEditableFieldState extends State<InlineEditableField> {
           borderRadius: BorderRadius.circular(8),
         ),
         child: Text(
-          (widget.value == "0" || widget.value == "0.0") 
+          (widget.value == "") 
               ? widget.label 
               : '${widget.label} ${widget.value}',
           style: TextStyle(
-            color: widget.value == "0"
+            color: widget.value == ""
                 ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
                 : null,
           ),
