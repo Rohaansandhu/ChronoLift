@@ -98,7 +98,7 @@ class ExerciseModel extends ChangeNotifier {
   Future<bool> addExercise({
     required String name,
     required String uuid,
-    String? categoryId,
+    required int categoryId,
     String? instructions,
   }) async {
     try {
@@ -106,7 +106,7 @@ class ExerciseModel extends ChangeNotifier {
         ExercisesCompanion.insert(
           name: name,
           uuid: uuid,
-          categoryId: Value(categoryId),
+          categoryId: categoryId,
           instructions: Value(instructions),
         ),
       );
@@ -130,7 +130,7 @@ class ExerciseModel extends ChangeNotifier {
   Future<bool> updateExercise({
     required int id,
     String? name,
-    String? categoryId,
+    required int? categoryId,
     String? instructions,
   }) async {
     try {
@@ -138,7 +138,7 @@ class ExerciseModel extends ChangeNotifier {
         id,
         ExercisesCompanion(
           name: name != null ? Value(name) : const Value.absent(),
-          categoryId: Value(categoryId),
+          categoryId: Value(categoryId!),
           instructions: Value(instructions),
         ),
       );

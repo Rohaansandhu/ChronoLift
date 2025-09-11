@@ -1,6 +1,6 @@
+import 'package:chronolift/database/database.dart';
 import 'package:flutter/material.dart';
-// TODO: Import your exercise models/services here
-// TODO: Import your database/drift classes here
+import 'package:provider/provider.dart';
 
 class ExerciseSelectorSheet {
   static Future<void> show(
@@ -8,12 +8,12 @@ class ExerciseSelectorSheet {
     Function(dynamic exercise)? onExerciseSelected,
   }) async {
     final theme = Theme.of(context);
+    final database = Provider.of<AppDatabase>(context, listen: false);
 
-    // TODO: Replace with your exercise data source
-    // Example: final exerciseDao = context.read<AppDatabase>().exerciseDao;
-    // Example: final exercises = await exerciseDao.getAllExercises();
-    final exercises = await _getExercises();
-    final categories = _groupExercisesByCategory(exercises);
+    // Load categories asynchronously first
+    final categories = await _groupExercisesByCategory(database);
+
+    if (!context.mounted) return;
 
     // Step 1: Category bottom sheet
     final chosenCategory = await showModalBottomSheet<String>(
@@ -52,7 +52,7 @@ class ExerciseSelectorSheet {
                 }
                 final category = categories.keys.elementAt(index - 1);
                 final exerciseCount = categories[category]!.length;
-                
+
                 return ListTile(
                   title: Text(
                     category,
@@ -78,7 +78,7 @@ class ExerciseSelectorSheet {
       },
     );
 
-    if (chosenCategory == null) return;
+    if (chosenCategory == null || !context.mounted) return;
 
     // Step 2: Exercise bottom sheet
     final chosenExercise = await showModalBottomSheet<dynamic>(
@@ -135,23 +135,12 @@ class ExerciseSelectorSheet {
                     ),
                     itemBuilder: (context, index) {
                       final exercise = categoryExercises[index];
-                      
+
                       return ListTile(
                         title: Text(
-                          // TODO: Replace with your exercise name field
-                          exercise.toString(), // exercise.name
+                          exercise.name,
                           style: theme.textTheme.bodyLarge,
                         ),
-                        subtitle: exercise is Map && exercise.containsKey('instructions') 
-                          ? Text(
-                              exercise['instructions'] ?? '',
-                              style: theme.textTheme.bodySmall?.copyWith(
-                                color: theme.colorScheme.onSurface.withOpacity(0.7),
-                              ),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                            )
-                          : null,
                         onTap: () => Navigator.pop(context, exercise),
                       );
                     },
@@ -170,49 +159,18 @@ class ExerciseSelectorSheet {
     }
   }
 
-  // TODO: Replace with your actual database query
-  static Future<List<dynamic>> _getExercises() async {
-    // Placeholder - replace with your Drift database call
-    // Example: return await database.exerciseDao.getAllExercises();
-    return [
-      // Placeholder data structure
-      {'name': 'Bench Press', 'category': 'Chest', 'instructions': 'Lie on bench...'},
-      {'name': 'Squats', 'category': 'Legs', 'instructions': 'Stand with feet...'},
-      {'name': 'Deadlift', 'category': 'Back', 'instructions': 'Stand with feet...'},
-      // Add more exercises...
-    ];
-  }
+  static Future<Map<String, List<Exercise>>> _groupExercisesByCategory(
+      AppDatabase database) async {
+    final categoryDao = database.categoryDao;
+    final exerciseDao = database.exerciseDao;
+    final categories = await categoryDao.getAllCategories();
+    final Map<String, List<Exercise>> categoryExerciseMap = {};
 
-  // TODO: Update this method to work with your exercise data structure
-  static Map<String, List<dynamic>> _groupExercisesByCategory(List<dynamic> exercises) {
-    final Map<String, List<dynamic>> categories = {};
-    
-    for (final exercise in exercises) {
-      // TODO: Replace with your category field access
-      final category = exercise is Map 
-          ? exercise['category'] ?? 'Other'
-          : 'Other'; // exercise.category
-      
-      categories.putIfAbsent(category, () => []).add(exercise);
+    for (final category in categories) {
+      final exercises = await exerciseDao.getExercisesByCategory(category.id);
+      categoryExerciseMap[category.name] = exercises;
     }
-    
-    // Sort categories alphabetically
-    final sortedCategories = Map.fromEntries(
-      categories.entries.toList()..sort((a, b) => a.key.compareTo(b.key))
-    );
-    
-    return sortedCategories;
-  }
 
-  // Alternative static method with direct database access
-  static Future<void> showWithDatabase(
-    BuildContext context, {
-    required Function(dynamic exercise) onExerciseSelected,
-    // TODO: Add your database parameter
-    // required AppDatabase database,
-  }) async {
-    // TODO: Implement direct database access version
-    // final exercises = await database.exerciseDao.getAllExercises();
-    // ... rest of implementation
+    return categoryExerciseMap;
   }
 }

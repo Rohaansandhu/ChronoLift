@@ -24,11 +24,9 @@ class CategoryDao extends DatabaseAccessor<AppDatabase> with _$CategoryDaoMixin 
     return await (select(categories)..where((c) => c.uuid.equals(uuid))).getSingleOrNull();
   }
 
-  // Search categories by name
-  Future<List<Category>> searchCategories(String query) async {
-    return await (select(categories)
-      ..where((c) => c.name.contains(query))
-      ..orderBy([(c) => OrderingTerm.asc(c.name)])).get();
+  // Get category by name
+  Future<Category?> getCategoryByName(String name) async {
+    return await (select(categories)..where((c) => c.name.equals(name))).getSingleOrNull();
   }
 
   // Create category
@@ -51,5 +49,12 @@ class CategoryDao extends DatabaseAccessor<AppDatabase> with _$CategoryDaoMixin 
     final query = selectOnly(categories, distinct: true)..addColumns([categories.name]);
     final results = await query.get();
     return results.map((row) => row.read(categories.name)!).toList();
+  }
+
+  // Delete all categories and return count 
+  Future<int> clearAllCategories() async {
+    final count = await (select(categories)).get().then((list) => list.length);
+    await delete(categories).go();
+    return count;
   }
 }

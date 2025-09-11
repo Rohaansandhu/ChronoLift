@@ -34,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _loading = true);
     try {
-      final authService = AuthService(context.read<GlobalUserService>());
+      final authService = AuthService();
       final response = await authService.signInWithEmailAndSetUser(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
@@ -60,7 +60,7 @@ class _LoginPageState extends State<LoginPage> {
     }
     setState(() => _loading = true);
     try {
-      final authService = AuthService(context.read<GlobalUserService>());
+      final authService = AuthService();
       await authService.sendPasswordReset(email: email);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(

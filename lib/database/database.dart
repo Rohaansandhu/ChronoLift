@@ -16,12 +16,15 @@ import 'tables/categories_table.dart';
 import 'dao/workout_dao.dart';
 import 'dao/exercise_dao.dart';
 import 'dao/user_dao.dart';
+import 'package:chronolift/database/dao/category_dao.dart';
+import 'package:chronolift/database/dao/workout_exercise_dao.dart';
+import 'package:chronolift/database/dao/workout_set_dao.dart';
 
 part 'database.g.dart';
 
 @DriftDatabase(
   tables: [Workouts, Exercises, WorkoutExercises, Sets, Users, Categories],
-  daos: [WorkoutDao, ExerciseDao, UserDao],
+  daos: [WorkoutDao, ExerciseDao, UserDao, CategoryDao, WorkoutExerciseDao, WorkoutSetDao],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());

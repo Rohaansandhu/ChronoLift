@@ -3,9 +3,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
-  final GlobalUserService _globalUser;
 
-  AuthService(this._globalUser);
+  AuthService();
 
   // Stream of auth state changes
   Stream<AuthState> get authState => _supabase.auth.onAuthStateChange;
@@ -36,10 +35,10 @@ class AuthService {
     // If successful, update GlobalUserService
     if (response.user != null) {
       try {
-        await _globalUser.setCurrentUserByEmail(email);
+        await globalUser.setCurrentUserByEmail(email);
       } catch (e) {
         // User doesn't exist locally, create them
-        await _globalUser.upsertUser(
+        await globalUser.upsertUser(
           uuid: response.user!.id,
           email: response.user!.email!,
           setAsCurrent: true,

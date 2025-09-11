@@ -7,6 +7,7 @@ import 'package:chronolift/database/dao/workout_exercise_dao.dart';
 import 'package:chronolift/database/dao/workout_set_dao.dart';
 import 'package:chronolift/database/database.dart';
 import 'package:chronolift/models/workout_state.dart';
+import 'package:chronolift/seed_data.dart';
 import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/material.dart';
@@ -15,6 +16,10 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'Theme/lightmode.dart';
 import 'Theme/darkmode.dart';
 import 'models/exercise_model.dart';
+
+// Global instances of drift db and current user
+late AppDatabase db;
+late GlobalUserService globalUser;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,35 +34,33 @@ void main() async {
   );
 
   // IMPORTANT: Initializes the Drift DB, only run this once
-  final db = AppDatabase();
+  db = AppDatabase();
+
   // Initialize the global user service to keep track of local user
-  final globalUser = GlobalUserService.instance;
+  globalUser = GlobalUserService.instance;
   globalUser.initialize(db);
-  await globalUser.loadCurrentUser(); 
+  await globalUser.loadCurrentUser();
+
+  // Seed default exercise and categories if necessary on startup
+  // TODO: Sync from Cloud if exercise and categories have changed
+  await seedDefaultsIfEmpty(db);
 
   runApp(
     MultiProvider(
       providers: [
-        // Provide a single AppDatabase instance for the whole app
+        // Provide a single AppDatabase instance to access with build context
         Provider<AppDatabase>(
           create: (_) => db,
           dispose: (_, db) => db.close(),
         ),
-        // Add GlobalUserService to load the current user
-        Provider<GlobalUserService>(create: (_) => globalUser),
-        ProxyProvider<GlobalUserService, AuthService>(
-          update: (_, globalUser, __) => AuthService(globalUser),
-        ),
         // ExerciseModel & WorkoutStateModel depend on AppDatabase, so build it using context.read
         ChangeNotifierProvider(
           create: (context) {
-            final db = context.read<AppDatabase>();
             return ExerciseModel(ExerciseDao(db), CategoryDao(db));
           },
         ),
         ChangeNotifierProvider(
           create: (context) {
-            final db = context.read<AppDatabase>();
             return WorkoutStateModel(
                 WorkoutDao(db), WorkoutExerciseDao(db), WorkoutSetDao(db));
           },

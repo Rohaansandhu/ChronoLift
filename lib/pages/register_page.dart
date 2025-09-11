@@ -1,13 +1,9 @@
-import 'package:chronolift/database/database.dart' as db;
 import 'package:chronolift/services/global_user_service.dart';
-import 'package:drift/drift.dart' as drift;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
-import '../database/database_provider.dart';
-import 'package:chronolift/database/dao/user_dao.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -38,7 +34,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _loading = true);
     try {
-      final authService = AuthService(context.read<GlobalUserService>());
+      final authService = AuthService();
       final response = await authService.registerWithEmail(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
@@ -68,6 +64,7 @@ class _RegisterPageState extends State<RegisterPage> {
             const SnackBar(
                 content: Text('Account created. You are now signed in.')),
           );
+
         }
       }
     } on AuthException catch (e) {
