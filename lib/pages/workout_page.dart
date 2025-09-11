@@ -37,7 +37,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
   }
 
   Future<void> _addExercise() async {
-    await ExerciseSelectorSheet.show(context);
+    final workoutState = context.read<WorkoutStateModel>();
+
+    await ExerciseSelectorSheet.show(
+      context,
+      onExerciseSelected: (exercise) async {
+        // Add the selected exercise to the workout state
+        await workoutState.addExercise(exercise);
+      },
+    );
+
     // Auto-scroll to bottom after adding exercise
     _scrollToBottom();
   }
@@ -57,7 +66,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         if (!didPop) {
           final shouldExit = await ExitConfirmationDialog.show(context);
           if (shouldExit && context.mounted) {
-            Navigator.of(context).pop(true); 
+            Navigator.of(context).pop(true);
           }
         }
       },

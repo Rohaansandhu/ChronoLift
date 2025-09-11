@@ -105,7 +105,7 @@ class ExerciseCard extends StatelessWidget {
                   ],
                 ),
               );
-            }).toList(),
+            }),
 
             const SizedBox(height: 8),
             Center(
