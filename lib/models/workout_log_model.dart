@@ -44,42 +44,28 @@ class WorkoutLogModel extends ChangeNotifier {
     loadWorkouts();
   }
 
-  // Load workouts with pagination
   Future<void> loadWorkouts({bool refresh = false}) async {
-    if (_isLoading) return;
+  if (_isLoading) return;
 
-    if (refresh) {
-      _currentPage = 0;
-      _workouts = [];
-      _workoutDetailsCache = {};
-      _hasMore = true;
-    }
+  _isLoading = true;
+  notifyListeners();
 
-    _isLoading = true;
+  try {
+    final allWorkouts = await _workoutDao.getAllWorkouts();
+
+    // Just load all workouts
+    _workouts = allWorkouts;
+
+    // No more pagination needed
+    _hasMore = false;
+  } catch (e) {
+    debugPrint('Error loading workouts: $e');
+  } finally {
+    _isLoading = false;
     notifyListeners();
-
-    try {
-      final allWorkouts = await _workoutDao.getAllWorkouts();
-
-      // Apply pagination
-      final startIndex = _currentPage * _pageSize;
-      final endIndex = (startIndex + _pageSize).clamp(0, allWorkouts.length);
-
-      if (refresh) {
-        _workouts = allWorkouts.sublist(startIndex, endIndex);
-      } else {
-        _workouts.addAll(allWorkouts.sublist(startIndex, endIndex));
-      }
-
-      _hasMore = endIndex < allWorkouts.length;
-      _currentPage++;
-    } catch (e) {
-      debugPrint('Error loading workouts: $e');
-    } finally {
-      _isLoading = false;
-      notifyListeners();
-    }
   }
+}
+
 
   // Load more workouts (pagination)
   Future<void> loadMore() async {

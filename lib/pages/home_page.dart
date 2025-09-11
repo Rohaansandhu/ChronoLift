@@ -1,4 +1,6 @@
+import 'package:chronolift/database/dao/workout_dao.dart';
 import 'package:chronolift/services/global_user_service.dart';
+import 'package:chronolift/widgets/home/workout_log_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -51,16 +53,6 @@ class _HomePageState extends State<HomePage> {
           style: TextStyle(color: colorScheme.tertiary),
         ),
         backgroundColor: colorScheme.primary,
-        actions: [
-          IconButton(
-            onPressed: () async {
-              globalUser.clearCurrentUser();
-              await Supabase.instance.client.auth.signOut();
-            },
-            icon: const Icon(Icons.logout),
-            tooltip: 'Logout',
-          ),
-        ],
       ),
       backgroundColor: colorScheme.surface,
       body: Consumer<WorkoutStateModel>(
@@ -210,7 +202,8 @@ class _HomePageState extends State<HomePage> {
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount: workoutLog.workouts.length + (workoutLog.hasMore ? 1 : 0),
+            itemCount:
+                workoutLog.workouts.length,
             itemBuilder: (context, index) {
               if (index == workoutLog.workouts.length) {
                 return const Padding(
@@ -220,70 +213,26 @@ class _HomePageState extends State<HomePage> {
               }
 
               final workout = workoutLog.workouts[index];
-              final dateFormat = DateFormat('EEEE, MMM d');
-              final timeFormat = DateFormat('h:mm a');
 
-              return Card(
-                margin: const EdgeInsets.only(bottom: 12),
-                elevation: 2,
-                child: InkWell(
-                  onTap: () {
-                    _showWorkoutDetails(context, workout.id);
-                  },
-                  borderRadius: BorderRadius.circular(12),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              dateFormat.format(workout.date),
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            if (workout.startTime != null)
-                              Text(
-                                timeFormat.format(workout.startTime!),
-                                style: TextStyle(
-                                  color: Theme.of(context)
-                                      .colorScheme
-                                      .onSurface
-                                      .withOpacity(0.6),
-                                  fontSize: 14,
-                                ),
-                              ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        if (workout.notes != null &&
-                            workout.notes!.isNotEmpty)
-                          Text(
-                            workout.notes!,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: 13,
-                              color: Theme.of(context)
-                                  .colorScheme
-                                  .onSurface
-                                  .withOpacity(0.6),
-                              fontStyle: FontStyle.italic,
-                            ),
-                          ),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteWorkout(context, workout.id),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+              return FutureBuilder<WorkoutWithExercises?>(
+                future: context
+                    .read<WorkoutDao>()
+                    .getWorkoutWithExercises(workout.id),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator(); // or SizedBox.shrink() if you want empty space
+                  } else if (snapshot.hasError) {
+                    return Text("Error loading workout: ${snapshot.error}");
+                  } else if (!snapshot.hasData) {
+                    return const Text("No data found");
+                  }
+
+                  final workoutWithExercises = snapshot.data!;
+                  return WorkoutLogCard(
+                    workout: workoutWithExercises.workout,
+                    exercises: workoutWithExercises.exercises,
+                  );
+                },
               );
             },
           ),

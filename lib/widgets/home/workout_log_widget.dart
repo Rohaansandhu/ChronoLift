@@ -1,20 +1,26 @@
+import 'package:chronolift/database/dao/workout_dao.dart';
+import 'package:chronolift/database/database.dart';
+import 'package:chronolift/models/workout_log_model.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class WorkoutLogCard extends StatelessWidget {
-  final Map<String, dynamic> workoutLog;
+  final Workout workout; // From Drift
+  final List<WorkoutExerciseWithSets> exercises; // Joined list from Drift query
 
   const WorkoutLogCard({
     super.key,
-    required this.workoutLog,
+    required this.workout,
+    required this.exercises,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Parse workout data
-    final DateTime workoutDate = (workoutLog['date']).toDate();
-    final String workoutName = workoutLog['name'] ?? 'Unnamed Workout';
+    final DateTime workoutDate = workout.date; // Already a DateTime
+    final String workoutName = workout.name ?? 'Unnamed Workout';
     final int durationMinutes = _calculateDuration();
-    final List<String> exerciseNames = _extractExerciseNames();
+    final List<String> exerciseNames =
+        exercises.map((e) => e.exercise.name).toList();
 
     return Container(
       width: double.infinity,
@@ -35,53 +41,54 @@ class WorkoutLogCard extends StatelessWidget {
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Calendar Icon with Date
             _buildCalendarSection(workoutDate),
-
             const SizedBox(width: 16),
-
-            // Workout Details
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Workout Name and Duration Row
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
                           workoutName,
-                          style:
-                              Theme.of(context).textTheme.titleMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                          style: Theme.of(context)
+                              .textTheme
+                              .titleMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color:
-                              Theme.of(context).primaryColor.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(12),
+                      if (workout.startTime != null && workout.endTime != null)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).primaryColor.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Text(
+                            '${durationMinutes}m',
+                            style:
+                                Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).primaryColor,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                          ),
                         ),
-                        child: Text(
-                          '${durationMinutes}m',
-                          style:
-                              Theme.of(context).textTheme.bodySmall?.copyWith(
-                                    color: Theme.of(context).primaryColor,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                      // Delete button aligned to right
+                      Align(
+                        alignment: Alignment.centerRight,
+                        child: IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.black),
+                          onPressed: () => _deleteWorkout(context, workout.id),
                         ),
                       ),
                     ],
                   ),
-
                   const SizedBox(height: 8),
-
-                  // Exercise List
                   _buildExerciseList(exerciseNames, context),
                 ],
               ),
@@ -106,11 +113,7 @@ class WorkoutLogCard extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.calendar_today,
-            size: 20,
-            color: Colors.grey[700],
-          ),
+          Icon(Icons.calendar_today, size: 20, color: Colors.grey[700]),
           const SizedBox(height: 4),
           Text(
             _getMonthAbbreviation(workoutDate.month),
@@ -129,10 +132,7 @@ class WorkoutLogCard extends StatelessWidget {
           ),
           Text(
             _getDayOfWeekAbbreviation(workoutDate.weekday),
-            style: const TextStyle(
-              fontSize: 9,
-              color: Colors.grey,
-            ),
+            style: const TextStyle(fontSize: 9, color: Colors.grey),
           ),
         ],
       ),
@@ -150,29 +150,29 @@ class WorkoutLogCard extends StatelessWidget {
       );
     }
 
-    // Show up to 4 exercises, then "and X more"
     const int maxVisible = 4;
-    final List<String> visibleExercises =
-        exerciseNames.take(maxVisible).toList();
-    final int remainingCount = exerciseNames.length - maxVisible;
+    final visibleExercises = exerciseNames.take(maxVisible).toList();
+    final remainingCount = exerciseNames.length - maxVisible;
 
     return Wrap(
       spacing: 4,
       runSpacing: 4,
       children: [
-        ...visibleExercises.map((exercise) => Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: Colors.grey.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                exercise,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      fontSize: 11,
-                    ),
-              ),
-            )),
+        ...visibleExercises.map(
+          (exercise) => Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              exercise,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontSize: 11,
+                  ),
+            ),
+          ),
+        ),
         if (remainingCount > 0)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
@@ -193,56 +193,9 @@ class WorkoutLogCard extends StatelessWidget {
     );
   }
 
-  //TODO: Add duration calculation in workout page
   int _calculateDuration() {
-    // Calculate from start/end time
-    final DateTime startTime = (workoutLog['startTime']).toDate();
-    final DateTime endTime = (workoutLog['endTime']).toDate();
-
-    return endTime.difference(startTime).inMinutes;
-  }
-
-  List<String> _extractExerciseNames() {
-    final List<String> exerciseNames = [];
-
-    // Try different possible structures for exercises
-    final dynamic exercises = workoutLog['exercises'] ??
-        workoutLog['exerciseList'] ??
-        workoutLog['workoutExercises'];
-
-    if (exercises == null) return exerciseNames;
-
-    if (exercises is List) {
-      for (final exercise in exercises) {
-        if (exercise is Map<String, dynamic>) {
-          final String name = exercise['name'] ??
-              exercise['exerciseName'] ??
-              exercise['title'] ??
-              'Unknown Exercise';
-          if (!exerciseNames.contains(name)) {
-            exerciseNames.add(name);
-          }
-        } else if (exercise is String) {
-          if (!exerciseNames.contains(exercise)) {
-            exerciseNames.add(exercise);
-          }
-        }
-      }
-    } else if (exercises is Map<String, dynamic>) {
-      // Handle case where exercises is a map with exercise IDs as keys
-      for (final exerciseData in exercises.values) {
-        if (exerciseData is Map<String, dynamic>) {
-          final String name = exerciseData['name'] ??
-              exerciseData['exerciseName'] ??
-              'Unknown Exercise';
-          if (!exerciseNames.contains(name)) {
-            exerciseNames.add(name);
-          }
-        }
-      }
-    }
-
-    return exerciseNames;
+    if (workout.startTime == null || workout.endTime == null) return 0;
+    return workout.endTime!.difference(workout.startTime!).inMinutes;
   }
 
   String _getMonthAbbreviation(int month) {
@@ -266,5 +219,44 @@ class WorkoutLogCard extends StatelessWidget {
   String _getDayOfWeekAbbreviation(int weekday) {
     const days = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
     return days[weekday - 1];
+  }
+
+  void _deleteWorkout(BuildContext context, int workoutId) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Workout'),
+        content: const Text(
+            'Are you sure you want to delete this workout? This cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      final success = await context.read<WorkoutDao>().deleteWorkout(workoutId);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+                success > 0 ? 'Workout deleted' : 'Failed to delete workout'),
+            backgroundColor: success > 0 ? Colors.green : Colors.red,
+          ),
+        );
+
+        // Refresh list after deletion
+        context.read<WorkoutLogModel>().loadWorkouts(refresh: true);
+      }
+    }
   }
 }

@@ -424,7 +424,7 @@ class WorkoutStateModel extends ChangeNotifier {
   }
 
   // Finish workout
-  Future<bool> finishWorkout(context) async {
+  Future<bool> finishWorkout(BuildContext context) async {
     if (_currentWorkout == null) return false;
 
     _isSaving = true;
@@ -464,11 +464,12 @@ class WorkoutStateModel extends ChangeNotifier {
     } finally {
       _isSaving = false;
       // Refresh the workout logs on the home page
-    if (context.mounted) {
-      // Get the WorkoutLogModel from the root of the widget tree
-      final workoutLogModel = Provider.of<WorkoutLogModel>(context, listen: false);
-      await workoutLogModel.loadWorkouts();
-    }
+      if (context.mounted) {
+        // Get the WorkoutLogModel from the root of the widget tree
+        final workoutLogModel =
+            Provider.of<WorkoutLogModel>(context, listen: false);
+        await workoutLogModel.loadWorkouts();
+      }
       Navigator.pop(context);
       notifyListeners();
     }
