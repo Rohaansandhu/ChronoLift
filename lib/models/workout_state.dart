@@ -98,6 +98,7 @@ class WorkoutStateModel extends ChangeNotifier {
   bool _isSaving = false;
   Timer? _durationTimer;
   Duration _elapsedDuration = Duration.zero;
+  bool _hasActiveWorkout = false;
 
   // Rest timer
   Timer? _restTimer;
@@ -114,7 +115,7 @@ class WorkoutStateModel extends ChangeNotifier {
   String? get notes => _notes;
   bool get isLoading => _isLoading;
   bool get isSaving => _isSaving;
-  bool get hasActiveWorkout => _currentWorkout != null;
+  bool get hasActiveWorkout => _hasActiveWorkout;
   Duration get elapsedDuration => _elapsedDuration;
   Duration get restDuration => _restDuration;
   Duration get targetRestDuration => _targetRestDuration;
@@ -159,6 +160,7 @@ class WorkoutStateModel extends ChangeNotifier {
       final workouts = await _workoutDao.getAllWorkouts();
       _currentWorkout = workouts.firstWhere((w) => w.id == workoutId);
       _startTime = DateTime.now();
+      _hasActiveWorkout = true;
       _notes = notes;
       _exercises = [];
 
@@ -181,6 +183,7 @@ class WorkoutStateModel extends ChangeNotifier {
       final workoutData = await _workoutDao.getWorkoutWithExercises(workoutId);
       if (workoutData != null) {
         _currentWorkout = workoutData.workout;
+        _name = workoutData.workout.name;
         _startTime = workoutData.workout.startTime;
         _endTime = workoutData.workout.endTime;
         _notes = workoutData.workout.notes;
@@ -469,7 +472,9 @@ class WorkoutStateModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _endTime = DateTime.now();
+      if (_hasActiveWorkout) {
+        _endTime = DateTime.now();
+      }
 
       await _workoutDao.updateWorkout(
         _currentWorkout!.id,
@@ -494,6 +499,7 @@ class WorkoutStateModel extends ChangeNotifier {
       _elapsedDuration = Duration.zero;
       _restDuration = Duration.zero;
       _isResting = false;
+      _hasActiveWorkout = false;
 
       return true;
     } catch (e) {
@@ -537,6 +543,7 @@ class WorkoutStateModel extends ChangeNotifier {
       _elapsedDuration = Duration.zero;
       _restDuration = Duration.zero;
       _isResting = false;
+      _hasActiveWorkout = false;
 
       notifyListeners();
     } catch (e) {

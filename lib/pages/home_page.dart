@@ -129,8 +129,7 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                    builder: (context) => const WorkoutPage()),
+                MaterialPageRoute(builder: (context) => const WorkoutPage()),
               );
               context.read<WorkoutStateModel>().startWorkout();
             },
@@ -223,9 +222,20 @@ class _HomePageState extends State<HomePage> {
                   }
 
                   final workoutWithExercises = snapshot.data!;
-                  return WorkoutLogCard(
-                    workout: workoutWithExercises.workout,
-                    exercises: workoutWithExercises.exercises,
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) =>
+                              WorkoutPage(workoutId: workout.id),
+                        ),
+                      );
+                    },
+                    child: WorkoutLogCard(
+                      workout: workoutWithExercises.workout,
+                      exercises: workoutWithExercises.exercises,
+                    ),
                   );
                 },
               );

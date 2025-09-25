@@ -8,7 +8,9 @@ import '../widgets/workout/exercise_selector_sheet.dart';
 import '../widgets/dialogs/exit_confirmation_dialog.dart';
 
 class WorkoutPage extends StatefulWidget {
-  const WorkoutPage({super.key});
+  final int? workoutId; // null for new workout, Id for editing existing
+
+  const WorkoutPage({super.key, this.workoutId});
 
   @override
   State<WorkoutPage> createState() => _WorkoutPageState();
@@ -21,6 +23,18 @@ class _WorkoutPageState extends State<WorkoutPage> {
   void dispose() {
     _scrollController.dispose();
     super.dispose();
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    // Load existing workout if editing
+    if (widget.workoutId != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<WorkoutStateModel>().loadWorkout(widget.workoutId!);
+      });
+    }
   }
 
   void _scrollToBottom() {
@@ -56,7 +70,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
     final exerciseModel = context.watch<ExerciseModel>();
     final workoutState = context.watch<WorkoutStateModel>();
 
-    if (exerciseModel.isLoading) {
+    if (exerciseModel.isLoading || workoutState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
@@ -70,7 +84,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
       child: Scaffold(
         appBar: AppBar(
             title: Text(
-              "New Workout",
+              widget.workoutId != null ? "Edit Workout" : "New Workout",
               style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
@@ -80,7 +94,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 child: IconButton(
                   icon: const Icon(Icons.delete, color: Colors.black),
                   onPressed: () async {
-                    final result = await ExitConfirmationDialog.show(context);
+                    final result = await DeleteConfirmationDialog.show(context);
                     if (result == true && context.mounted) {
                       Navigator.of(context).pop();
                     }

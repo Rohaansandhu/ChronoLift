@@ -2,15 +2,15 @@ import 'package:chronolift/models/workout_state.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-class ExitConfirmationDialog {
+class DeleteConfirmationDialog {
   static Future<bool> show(BuildContext context) async {
     final result = await showDialog<bool>(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Exit Workout?"),
+          title: const Text("Delete Workout?"),
           content: const Text(
-            "Are you sure you want to exit? Your workout progress will be lost.",
+            "Are you sure you want to delete? Your workout progress will be lost.",
           ),
           actions: [
             TextButton(
@@ -27,7 +27,7 @@ class ExitConfirmationDialog {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text("Exit"),
+              child: const Text("Delete"),
             ),
           ],
         );
