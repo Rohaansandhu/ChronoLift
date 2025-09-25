@@ -1,4 +1,5 @@
 import 'package:chronolift/database/dao/workout_dao.dart';
+import 'package:chronolift/database/dao/workout_exercise_dao.dart';
 import 'package:chronolift/widgets/home/workout_log_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

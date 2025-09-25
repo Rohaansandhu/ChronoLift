@@ -158,6 +158,11 @@ class WorkoutExerciseDao extends DatabaseAccessor<AppDatabase> with _$WorkoutExe
         .go();
   }
 
+  // Clear workout exercise table
+  void clearWorkoutExercises() async {
+    await delete(workoutExercises).go();
+  }
+
   // Get next order number for workout
   Future<int> getNextOrderForWorkout(int workoutId) async {
     final maxOrder = await (selectOnly(workoutExercises)

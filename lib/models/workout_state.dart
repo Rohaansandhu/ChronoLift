@@ -274,22 +274,44 @@ class WorkoutStateModel extends ChangeNotifier {
   Future<void> addSet(WorkoutExerciseState exercise,
       {WorkoutSetState? copyFrom}) async {
     final setNumber = exercise.sets.length + 1;
-    final newSet = WorkoutSetState(
-      setNumber: setNumber,
-      weight: copyFrom?.weight,
-      reps: copyFrom?.reps,
-      duration: copyFrom?.duration,
-      rpe: copyFrom?.rpe,
-      isWarmup: copyFrom?.isWarmup ?? false,
-      isEditing: true,
-    );
 
-    exercise.sets.add(newSet);
-    notifyListeners();
+    try {
+      // Create the new set and save it to the database immediately
+      final setId = await _workoutSetDao.addSet(
+        workoutExerciseId: exercise.workoutExerciseId,
+        setNumber: setNumber,
+        weight: copyFrom?.weight,
+        reps: copyFrom?.reps,
+        duration: copyFrom?.duration,
+        rpe: copyFrom?.rpe,
+        notes: copyFrom?.notes,
+        isWarmup: copyFrom?.isWarmup ?? false,
+      );
+
+      // Create the set state with the database ID
+      final newSet = WorkoutSetState(
+        id: setId, // Now has a database ID
+        setNumber: setNumber,
+        weight: copyFrom?.weight,
+        reps: copyFrom?.reps,
+        duration: copyFrom?.duration,
+        rpe: copyFrom?.rpe,
+        notes: copyFrom?.notes,
+        isWarmup: copyFrom?.isWarmup ?? false,
+        isCompleted: true, // Mark as completed since it's saved
+        isEditing: false, // Not in editing mode by default
+      );
+
+      exercise.sets.add(newSet);
+      notifyListeners();
+    } catch (e) {
+      debugPrint('Error adding set: $e');
+    }
   }
 
   // Update set
-  void updateSet(
+  // Update set
+  Future<void> updateSet(
     int exerciseIndex,
     int setIndex, {
     double? weight,
@@ -300,13 +322,14 @@ class WorkoutStateModel extends ChangeNotifier {
     bool? isWarmup,
     bool? isCompleted,
     bool? isEditing,
-  }) {
+  }) async {
     if (exerciseIndex < 0 || exerciseIndex >= _exercises.length) return;
     final exercise = _exercises[exerciseIndex];
 
     if (setIndex < 0 || setIndex >= exercise.sets.length) return;
     final set = exercise.sets[setIndex];
 
+    // Update the local state first
     exercise.sets[setIndex] = set.copyWith(
       weight: weight ?? set.weight,
       reps: reps ?? set.reps,
@@ -318,64 +341,26 @@ class WorkoutStateModel extends ChangeNotifier {
       isEditing: isEditing ?? set.isEditing,
     );
 
-    notifyListeners();
-  }
-
-  // Complete set (save to database)
-  Future<void> completeSet(int exerciseIndex, int setIndex) async {
-    if (exerciseIndex < 0 || exerciseIndex >= _exercises.length) return;
-    final exercise = _exercises[exerciseIndex];
-
-    if (setIndex < 0 || setIndex >= exercise.sets.length) return;
-    final set = exercise.sets[setIndex];
-
-    try {
-      if (set.id == null) {
-        // Save new set
-        final setId = await _workoutSetDao.addSet(
-          workoutExerciseId: exercise.workoutExerciseId,
-          setNumber: set.setNumber,
-          weight: set.weight,
-          reps: set.reps,
-          duration: set.duration,
-          rpe: set.rpe,
-          notes: set.notes,
-          isWarmup: set.isWarmup,
-        );
-
-        exercise.sets[setIndex] = set.copyWith(
-          id: setId,
-          isCompleted: true,
-          isEditing: false,
-        );
-      } else {
-        // Update existing set
+    // If the set has an ID (is saved), update it in the database
+    if (set.id != null) {
+      try {
         await _workoutSetDao.updateSet(
           set.id!,
           SetsCompanion(
-            weight: Value(set.weight),
-            reps: Value(set.reps),
-            duration: Value(set.duration),
-            rpe: Value(set.rpe),
-            notes: Value(set.notes),
-            isWarmup: Value(set.isWarmup),
+            weight: Value(exercise.sets[setIndex].weight),
+            reps: Value(exercise.sets[setIndex].reps),
+            duration: Value(exercise.sets[setIndex].duration),
+            rpe: Value(exercise.sets[setIndex].rpe),
+            notes: Value(exercise.sets[setIndex].notes),
+            isWarmup: Value(exercise.sets[setIndex].isWarmup),
           ),
         );
-
-        exercise.sets[setIndex] = set.copyWith(
-          isCompleted: true,
-          isEditing: false,
-        );
+      } catch (e) {
+        debugPrint('Error updating set: $e');
       }
-
-      // TODO: Add UI for rest timer
-      // Start rest timer
-      // startRestTimer();
-
-      notifyListeners();
-    } catch (e) {
-      debugPrint('Error completing set: $e');
     }
+
+    notifyListeners();
   }
 
   // Remove set
