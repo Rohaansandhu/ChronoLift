@@ -10,7 +10,7 @@ part 'workout_exercise_dao.g.dart';
 
 @DriftAccessor(tables: [WorkoutExercises, Exercises, Sets])
 class WorkoutExerciseDao extends DatabaseAccessor<AppDatabase> with _$WorkoutExerciseDaoMixin {
-  WorkoutExerciseDao(AppDatabase db) : super(db);
+  WorkoutExerciseDao(super.db);
 
   // Create a new workout exercise
   Future<int> createWorkoutExercise(WorkoutExercisesCompanion workoutExercise) async {

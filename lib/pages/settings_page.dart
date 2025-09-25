@@ -102,7 +102,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   Text(
                                     user.email,
                                     style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: colorScheme.onSurface.withOpacity(0.7),
+                                      color: colorScheme.onSurface.withValues(alpha: 0.7),
                                     ),
                                   ),
                                 ],
@@ -162,7 +162,6 @@ class _SettingsPageState extends State<SettingsPage> {
                       style: TextStyle(color: colorScheme.error),
                     ),
                     onTap: () async {
-                      // TODO: Implement logout
                       final confirmed = await showDialog<bool>(
                         context: context,
                         builder: (context) => AlertDialog(

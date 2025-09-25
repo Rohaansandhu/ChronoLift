@@ -470,7 +470,9 @@ class WorkoutStateModel extends ChangeNotifier {
             Provider.of<WorkoutLogModel>(context, listen: false);
         await workoutLogModel.loadWorkouts();
       }
-      Navigator.pop(context);
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
       notifyListeners();
     }
   }

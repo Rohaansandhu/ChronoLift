@@ -23,7 +23,7 @@ class WorkoutLogModel extends ChangeNotifier {
   final WorkoutSetDao _workoutSetDao;
 
   List<Workout> _workouts = [];
-  Map<int, WorkoutDetail> _workoutDetailsCache = {};
+  final Map<int, WorkoutDetail> _workoutDetailsCache = {};
   bool _isLoading = false;
 
   // Pagination
@@ -119,10 +119,5 @@ class WorkoutLogModel extends ChangeNotifier {
       debugPrint('Error deleting workout: $e');
       return false;
     }
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
   }
 }

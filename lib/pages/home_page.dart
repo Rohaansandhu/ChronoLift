@@ -1,14 +1,11 @@
 import 'package:chronolift/database/dao/workout_dao.dart';
-import 'package:chronolift/services/global_user_service.dart';
 import 'package:chronolift/widgets/home/workout_log_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/models/workout_log_model.dart';
 import 'package:chronolift/models/workout_state.dart';
 import 'workout_page.dart';
 import 'package:shiny_button/shiny_button.dart';
-import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -85,7 +82,7 @@ class _HomePageState extends State<HomePage> {
                               style: TextStyle(
                                 fontSize: 12,
                                 color: colorScheme.onPrimaryContainer
-                                    .withOpacity(0.8),
+                                    .withValues(alpha: 0.8),
                               ),
                             ),
                           ],
@@ -169,7 +166,7 @@ class _HomePageState extends State<HomePage> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.3)),
+                        .withValues(alpha: 0.3)),
                 const SizedBox(height: 16),
                 Text(
                   "No Workouts Yet",
@@ -178,7 +175,7 @@ class _HomePageState extends State<HomePage> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.6),
+                        .withValues(alpha: 0.6),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -189,7 +186,7 @@ class _HomePageState extends State<HomePage> {
                     color: Theme.of(context)
                         .colorScheme
                         .onSurface
-                        .withOpacity(0.4),
+                        .withValues(alpha: 0.4),
                   ),
                 ),
               ],
@@ -255,44 +252,8 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
-  void _showWorkoutDetails(BuildContext context, int workoutId) {
-    // Navigate to workout detail page if needed
-  }
+  // void _showWorkoutDetails(BuildContext context, int workoutId) {
+  //   // Navigate to workout detail page if needed
+  // }
 
-  void _deleteWorkout(BuildContext context, int workoutId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Workout'),
-        content: const Text(
-            'Are you sure you want to delete this workout? This cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && context.mounted) {
-      final success =
-          await context.read<WorkoutLogModel>().deleteWorkout(workoutId);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content:
-                Text(success ? 'Workout deleted' : 'Failed to delete workout'),
-            backgroundColor: success ? Colors.green : Colors.red,
-          ),
-        );
-      }
-    }
-  }
 }

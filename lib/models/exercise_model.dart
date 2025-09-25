@@ -13,7 +13,7 @@ class ExerciseModel extends ChangeNotifier {
   List<Category> _categories = [];
   bool _isLoading = false;
   String _searchQuery = '';
-  String? _selectedCategory;
+  int? _selectedCategory;
 
   // Getters
   List<Exercise> get exercises => _filteredExercises.isEmpty &&
@@ -24,7 +24,7 @@ class ExerciseModel extends ChangeNotifier {
   List<Category> get categories => _categories;
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
-  String? get selectedCategory => _selectedCategory;
+  int? get selectedCategory => _selectedCategory;
 
   ExerciseModel(this._exerciseDao, this._categoryDao) {
     loadExercises();
@@ -64,7 +64,7 @@ class ExerciseModel extends ChangeNotifier {
   }
 
   // Filter by category
-  void filterByCategory(String? category) {
+  void filterByCategory(int? category) {
     _selectedCategory = category;
     _applyFilters();
   }
@@ -102,7 +102,7 @@ class ExerciseModel extends ChangeNotifier {
     String? instructions,
   }) async {
     try {
-      final id = await _exerciseDao.createExercise(
+      await _exerciseDao.createExercise(
         ExercisesCompanion.insert(
           name: name,
           uuid: uuid,
@@ -115,7 +115,7 @@ class ExerciseModel extends ChangeNotifier {
       await loadExercises();
 
       // Reload categories if new category was added
-      if (categoryId != null && !_categories.contains(categoryId)) {
+      if (!_categories.any((c) => c.id == categoryId)) {
         await loadCategories();
       }
 
@@ -145,7 +145,7 @@ class ExerciseModel extends ChangeNotifier {
 
       await loadExercises();
 
-      if (categoryId != null && !_categories.contains(categoryId)) {
+      if (!_categories.any((c) => c.id == categoryId)) {
         await loadCategories();
       }
 
@@ -182,9 +182,5 @@ class ExerciseModel extends ChangeNotifier {
     return _exercises.any((e) =>
         e.name.toLowerCase() == name.toLowerCase() &&
         (excludeId == null || e.id != excludeId));
-  }
-
-  void dispose() {
-    super.dispose();
   }
 }

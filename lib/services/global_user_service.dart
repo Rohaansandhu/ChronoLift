@@ -1,7 +1,6 @@
 import 'package:chronolift/database/dao/user_dao.dart';
 import 'package:chronolift/database/database.dart';
 import 'package:drift/drift.dart';
-import 'package:flutter/material.dart';
 
 // Global User Service - Singleton pattern
 class GlobalUserService {
@@ -13,6 +12,7 @@ class GlobalUserService {
   // Private variables
   User? _currentUser;
   UserDao? _userDao;
+  // ignore: unused_field
   AppDatabase? _database;
 
   // Initialize the service with database access

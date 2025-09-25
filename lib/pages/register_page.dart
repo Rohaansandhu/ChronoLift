@@ -1,6 +1,5 @@
 import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
@@ -59,12 +58,13 @@ class _RegisterPageState extends State<RegisterPage> {
           await _addUserToLocalDatabase(response.user!);
 
           // Registration successful and user is signed in
-          Navigator.of(context).pop();
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-                content: Text('Account created. You are now signed in.')),
-          );
-
+          if (mounted) {
+            Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                  content: Text('Account created. You are now signed in.')),
+            );
+          }
         }
       }
     } on AuthException catch (e) {
@@ -113,12 +113,10 @@ class _RegisterPageState extends State<RegisterPage> {
       );
     } catch (e) {
       // Handle duplicate entry or other database errors
-      if (e.toString().contains('UNIQUE constraint failed')) {
-        // User already exists in local database, that's okay
-        print('User already exists in local database');
-      } else {
+      if (!e.toString().contains('UNIQUE constraint failed')) {
         rethrow; // Re-throw other errors
-      }
+      } 
+      // User already exists otherwise
     }
   }
 

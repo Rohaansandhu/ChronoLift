@@ -1,5 +1,4 @@
 import 'package:chronolift/auth/auth_gate.dart';
-import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/database/dao/category_dao.dart';
 import 'package:chronolift/database/dao/exercise_dao.dart';
 import 'package:chronolift/database/dao/user_dao.dart';

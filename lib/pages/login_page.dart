@@ -1,6 +1,4 @@
-import 'package:chronolift/services/global_user_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
 import 'package:chronolift/auth/validators.dart';
@@ -35,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => _loading = true);
     try {
       final authService = AuthService();
-      final response = await authService.signInWithEmailAndSetUser(
+      await authService.signInWithEmailAndSetUser(
         email: _emailCtrl.text.trim(),
         password: _passwordCtrl.text,
       );
@@ -153,7 +151,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     'Track your lifts. Crush your goals.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: cs.tertiary.withOpacity(0.7),
+                          color: cs.tertiary.withValues(alpha: 0.7),
                         ),
                     textAlign: TextAlign.center,
                   ),

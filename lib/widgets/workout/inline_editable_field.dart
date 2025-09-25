@@ -118,7 +118,7 @@ class _InlineEditableFieldState extends State<InlineEditableField> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         decoration: BoxDecoration(
           border: Border.all(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
           ),
           borderRadius: BorderRadius.circular(8),
         ),
@@ -128,7 +128,7 @@ class _InlineEditableFieldState extends State<InlineEditableField> {
               : '${widget.label} ${widget.value}',
           style: TextStyle(
             color: widget.value == ""
-                ? Theme.of(context).colorScheme.onSurface.withOpacity(0.6)
+                ? Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6)
                 : null,
           ),
         ),
