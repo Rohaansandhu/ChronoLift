@@ -124,6 +124,7 @@ class _HomePageState extends State<HomePage> {
                       MaterialPageRoute(
                           builder: (context) => const WorkoutPage()),
                     );
+                    context.read<WorkoutStateModel>().startWorkout();
                   },
                   label: 'New Workout',
                   icon: const Icon(Icons.add, color: Colors.black),

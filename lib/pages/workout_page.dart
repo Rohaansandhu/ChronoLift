@@ -83,41 +83,31 @@ class _WorkoutPageState extends State<WorkoutPage> {
           child: Column(
             children: [
               const WorkoutHeader(),
-
-              // If workout not started -> show Start Workout button
-              if (workoutState.startTime == null)
-                ElevatedButton(
-                  onPressed: () => workoutState.startWorkout(),
-                  child: const Text("Start Workout"),
+              // show exercise list + finish button
+              Expanded(
+                child: ListView.builder(
+                  controller: _scrollController,
+                  itemCount: workoutState.exercises.length + 1,
+                  itemBuilder: (context, index) {
+                    if (index == workoutState.exercises.length) {
+                      return Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: ElevatedButton.icon(
+                          onPressed: _addExercise,
+                          icon: const Icon(Icons.add),
+                          label: const Text("Add Exercise"),
+                        ),
+                      );
+                    }
+                    return ExerciseCard(exerciseIndex: index);
+                  },
                 ),
-
-              // If started -> show exercise list + Finish button
-              if (workoutState.startTime != null) ...[
-                Expanded(
-                  child: ListView.builder(
-                    controller: _scrollController,
-                    itemCount: workoutState.exercises.length + 1,
-                    itemBuilder: (context, index) {
-                      if (index == workoutState.exercises.length) {
-                        return Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: ElevatedButton.icon(
-                            onPressed: _addExercise,
-                            icon: const Icon(Icons.add),
-                            label: const Text("Add Exercise"),
-                          ),
-                        );
-                      }
-                      return ExerciseCard(exerciseIndex: index);
-                    },
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () => workoutState.finishWorkout(context),
-                  child: const Text("Finish Workout"),
-                ),
-              ],
+              ),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () => workoutState.finishWorkout(context),
+                child: const Text("Finish Workout"),
+              ),
             ],
           ),
         ),

@@ -310,7 +310,6 @@ class WorkoutStateModel extends ChangeNotifier {
   }
 
   // Update set
-  // Update set
   Future<void> updateSet(
     int exerciseIndex,
     int setIndex, {
@@ -405,6 +404,60 @@ class WorkoutStateModel extends ChangeNotifier {
   // Update workout notes
   void updateNotes(String notes) {
     _notes = notes;
+    notifyListeners();
+  }
+
+// Update workout start time
+  Future<void> updateStartTime(DateTime startTime) async {
+    _startTime = startTime;
+
+    // Update the database if we have a current workout
+    if (_currentWorkout != null) {
+      try {
+        await _workoutDao.updateWorkout(
+          _currentWorkout!.id,
+          WorkoutsCompanion(
+            startTime: Value(startTime),
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error updating start time: $e');
+      }
+    }
+
+    // Restart the duration timer with the new start time
+    if (_endTime == null) {
+      _startDurationTimer();
+    }
+
+    notifyListeners();
+  }
+
+// Update workout end time
+  Future<void> updateEndTime(DateTime? endTime) async {
+    _endTime = endTime;
+
+    // Update the database if we have a current workout
+    if (_currentWorkout != null) {
+      try {
+        await _workoutDao.updateWorkout(
+          _currentWorkout!.id,
+          WorkoutsCompanion(
+            endTime: Value(endTime),
+          ),
+        );
+      } catch (e) {
+        debugPrint('Error updating end time: $e');
+      }
+    }
+
+    // Stop/start duration timer based on end time
+    if (endTime != null) {
+      _durationTimer?.cancel();
+    } else if (_startTime != null) {
+      _startDurationTimer();
+    }
+
     notifyListeners();
   }
 
