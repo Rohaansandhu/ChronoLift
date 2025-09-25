@@ -106,25 +106,28 @@ class _WorkoutPageState extends State<WorkoutPage> {
           padding: const EdgeInsets.all(16),
           child: Column(
             children: [
-              const WorkoutHeader(),
-              // show exercise list + finish button
               Expanded(
-                child: ListView.builder(
+                child: SingleChildScrollView(
                   controller: _scrollController,
-                  itemCount: workoutState.exercises.length + 1,
-                  itemBuilder: (context, index) {
-                    if (index == workoutState.exercises.length) {
-                      return Padding(
+                  child: Column(
+                    children: [
+                      const WorkoutHeader(),
+                      const SizedBox(height: 16),
+                      // Build exercise cards
+                      ...List.generate(workoutState.exercises.length, (index) {
+                        return ExerciseCard(exerciseIndex: index);
+                      }),
+                      // Add exercise button
+                      Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: ElevatedButton.icon(
                           onPressed: _addExercise,
                           icon: const Icon(Icons.add),
                           label: const Text("Add Exercise"),
                         ),
-                      );
-                    }
-                    return ExerciseCard(exerciseIndex: index);
-                  },
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
