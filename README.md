@@ -1,4 +1,4 @@
-# ⏱️ ChronoLift  
+# ChronoLift  
 
 <p align="center">
   <img src="https://img.shields.io/badge/Flutter-02569B?style=for-the-badge&logo=flutter&logoColor=white" />
@@ -14,20 +14,20 @@ Track your lifts, measure your progress, crush your goals.
 ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and Supabase. It’s designed to give you full control of your training data while still allowing seamless syncing across devices when you sign in.  
 
 
-## ✨ Features  
-- 📊 **Track workouts** – Create workouts, add exercises, log sets, and monitor progress.  
-- 🔒 **Local-first** – All data is stored locally on your device first (using Drift/SQLite).  
-- ☁️ **Cloud sync (in-progress)** – Sign in with Supabase to sync your workouts across devices.    
-- 📈 **Workout insights** – View advanced stats such as total sets completed this week, top 3 most performed exercises this month, bench press volume per workout over time, and more.  
-- 🛠️ **Custom routines** – Add your own exercises and design training plans.  
+## Features  
+- **Track workouts** – Create workouts, add exercises, log sets, and monitor progress.  
+- **Local-first** – All data is stored locally on your device first (using Drift/SQLite).  
+- **Cloud sync** – Sign in with Supabase to sync your workouts across devices.    
+- **Workout insights** – View advanced stats such as total sets completed this week, top 3 most performed exercises this month, bench press volume per workout over time, and more.  
+- **Custom routines** – Add your own exercises and design training plans.  
 
 
-## 🏗️ Tech Stack  
+## Tech Stack  
 - **Flutter** – Cross-platform app framework for both iOS and Android 
 - **Drift** – Local SQLite ORM with DAOs and type-safe queries  
 - **Supabase** – Cloud backend for authentication and optional data sync  
 
-## 🚀 Getting Started  
+## Getting Started  
 
 ### Prerequisites  
 - [Flutter](https://docs.flutter.dev/get-started/install) (latest stable version)  
@@ -49,10 +49,10 @@ ChronoLift is a **local-first workout tracker** built with Flutter, Drift, and S
     ```bash
     flutter run
 
-## 🤝 Contributing
+## Contributing
 
 Pull requests and feature ideas are welcome! Please fork the repo and submit a PR.
 
-## 📜 License
+## License
 
 GPL v3 License © 2025
