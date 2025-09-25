@@ -50,20 +50,19 @@ class WorkoutLogCard extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(
+                      Flexible(
                         child: Text(
                           workoutName,
                           style: Theme.of(context)
                               .textTheme
                               .titleMedium
                               ?.copyWith(fontWeight: FontWeight.bold),
-                          overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       if (workout.startTime != null && workout.endTime != null)
                         Container(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
+                              horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
                             color:
                                 Theme.of(context).primaryColor.withValues(alpha: 0.1),

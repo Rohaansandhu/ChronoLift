@@ -64,20 +64,30 @@ class _WorkoutPageState extends State<WorkoutPage> {
       canPop: false, // Prevent immediate popping
       onPopInvokedWithResult: (didPop, result) async {
         if (!didPop) {
-          final shouldExit = await ExitConfirmationDialog.show(context);
-          if (shouldExit && context.mounted) {
-            Navigator.of(context).pop(true);
-          }
+          Navigator.of(context).pop(true);
         }
       },
       child: Scaffold(
         appBar: AppBar(
-          title: Text(
-            "New Workout",
-            style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.primary,
-        ),
+            title: Text(
+              "New Workout",
+              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            actions: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: IconButton(
+                  icon: const Icon(Icons.delete, color: Colors.black),
+                  onPressed: () async {
+                    final result = await ExitConfirmationDialog.show(context);
+                    if (result == true && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ),
+            ]),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(

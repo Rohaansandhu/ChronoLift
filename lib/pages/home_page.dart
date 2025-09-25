@@ -1,5 +1,4 @@
 import 'package:chronolift/database/dao/workout_dao.dart';
-import 'package:chronolift/database/dao/workout_exercise_dao.dart';
 import 'package:chronolift/widgets/home/workout_log_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -25,7 +24,7 @@ class _HomePageState extends State<HomePage> {
     _scrollController.addListener(() {
       if (_scrollController.position.pixels >=
           _scrollController.position.maxScrollExtent - 200) {
-        context.read<WorkoutLogModel>().loadMore();
+        context.read<WorkoutLogModel>().loadWorkouts();
       }
     });
 
@@ -53,101 +52,106 @@ class _HomePageState extends State<HomePage> {
         backgroundColor: colorScheme.primary,
       ),
       backgroundColor: colorScheme.surface,
-      body: Consumer<WorkoutStateModel>(
-        builder: (context, workoutState, child) {
-          if (workoutState.hasActiveWorkout) {
-            return Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(16),
-                  color: colorScheme.primaryContainer,
-                  child: Row(
-                    children: [
-                      Icon(Icons.fitness_center,
-                          color: colorScheme.onPrimaryContainer),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Workout in Progress',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: colorScheme.onPrimaryContainer,
-                              ),
-                            ),
-                            Text(
-                              _formatDuration(workoutState.elapsedDuration),
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: colorScheme.onPrimaryContainer
-                                    .withValues(alpha: 0.8),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => const WorkoutPage()),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: colorScheme.primary,
-                          foregroundColor: colorScheme.onPrimary,
-                        ),
-                        child: const Text('Continue'),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(child: _buildWorkoutList(context)),
-              ],
-            );
-          }
+      body: Column(
+        children: [
+          // Separate consumer just for the active workout banner
+          Consumer<WorkoutStateModel>(
+            builder: (context, workoutState, child) {
+              if (!workoutState.hasActiveWorkout) {
+                return _buildNewWorkoutButton();
+              }
 
-          return Column(
-            children: [
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 80,
-                width: 275,
-                child: ShinyButton(
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const WorkoutPage()),
-                    );
-                    context.read<WorkoutStateModel>().startWorkout();
-                  },
-                  label: 'New Workout',
-                  icon: const Icon(Icons.add, color: Colors.black),
-                  backgroundColor: const Color(0xFFFFD6A5),
-                  textColor: Colors.black87,
-                  shineDirection: ShineDirection.leftToRight,
-                  iconPosition: IconPosition.leading,
-                  tooltip: 'Start a new workout',
-                  textStyle: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                  borderRadius: 16.0,
-                  elevation: 4.0,
-                  shadowColor: Colors.black54,
+              return Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(16),
+                color: colorScheme.primaryContainer,
+                child: Row(
+                  children: [
+                    Icon(Icons.fitness_center,
+                        color: colorScheme.onPrimaryContainer),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Workout in Progress',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: colorScheme.onPrimaryContainer,
+                            ),
+                          ),
+                          Text(
+                            _formatDuration(workoutState.elapsedDuration),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: colorScheme.onPrimaryContainer
+                                  .withValues(alpha: 0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => const WorkoutPage()),
+                        );
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                      ),
+                      child: const Text('Continue'),
+                    ),
+                  ],
                 ),
-              ),
-              const SizedBox(height: 20),
-              Expanded(child: _buildWorkoutList(context)),
-            ],
-          );
-        },
+              );
+            },
+          ),
+          // Static workout list that doesn't rebuild with WorkoutStateModel changes
+          Expanded(child: _buildWorkoutList(context)),
+        ],
       ),
+    );
+  }
+
+  Widget _buildNewWorkoutButton() {
+    return Column(
+      children: [
+        const SizedBox(height: 20),
+        SizedBox(
+          height: 80,
+          width: 275,
+          child: ShinyButton(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const WorkoutPage()),
+              );
+              context.read<WorkoutStateModel>().startWorkout();
+            },
+            label: 'New Workout',
+            icon: const Icon(Icons.add, color: Colors.black),
+            backgroundColor: const Color(0xFFFFD6A5),
+            textColor: Colors.black87,
+            shineDirection: ShineDirection.leftToRight,
+            iconPosition: IconPosition.leading,
+            tooltip: 'Start a new workout',
+            textStyle: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
+            borderRadius: 16.0,
+            elevation: 4.0,
+            shadowColor: Colors.black54,
+          ),
+        ),
+        const SizedBox(height: 20),
+      ],
     );
   }
 
@@ -201,16 +205,8 @@ class _HomePageState extends State<HomePage> {
           child: ListView.builder(
             controller: _scrollController,
             padding: const EdgeInsets.symmetric(horizontal: 16),
-            itemCount:
-                workoutLog.workouts.length,
+            itemCount: workoutLog.workouts.length,
             itemBuilder: (context, index) {
-              if (index == workoutLog.workouts.length) {
-                return const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Center(child: CircularProgressIndicator()),
-                );
-              }
-
               final workout = workoutLog.workouts[index];
 
               return FutureBuilder<WorkoutWithExercises?>(
@@ -219,7 +215,7 @@ class _HomePageState extends State<HomePage> {
                     .getWorkoutWithExercises(workout.id),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return const CircularProgressIndicator(); // or SizedBox.shrink() if you want empty space
+                    return const CircularProgressIndicator();
                   } else if (snapshot.hasError) {
                     return Text("Error loading workout: ${snapshot.error}");
                   } else if (!snapshot.hasData) {
@@ -253,9 +249,4 @@ class _HomePageState extends State<HomePage> {
       return '${seconds}s';
     }
   }
-
-  // void _showWorkoutDetails(BuildContext context, int workoutId) {
-  //   // Navigate to workout detail page if needed
-  // }
-
 }

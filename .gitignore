@@ -5,6 +5,9 @@ yarn-debug.log*
 yarn-error.log*
 firepit-log.txt
 
+# Screenshots
+*.png
+
 # Environment files (local configs)
 /.env.*
 .env

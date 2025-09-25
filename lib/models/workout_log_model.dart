@@ -26,15 +26,9 @@ class WorkoutLogModel extends ChangeNotifier {
   final Map<int, WorkoutDetail> _workoutDetailsCache = {};
   bool _isLoading = false;
 
-  // Pagination
-  static const int _pageSize = 20;
-  int _currentPage = 0;
-  bool _hasMore = true;
-
   // Getters
   List<Workout> get workouts => _workouts;
   bool get isLoading => _isLoading;
-  bool get hasMore => _hasMore;
 
   WorkoutLogModel(
     this._workoutDao,
@@ -51,13 +45,9 @@ class WorkoutLogModel extends ChangeNotifier {
   notifyListeners();
 
   try {
-    final allWorkouts = await _workoutDao.getAllWorkouts();
+    // load all workouts from the database
+    _workouts = await _workoutDao.getAllWorkouts();
 
-    // Just load all workouts
-    _workouts = allWorkouts;
-
-    // No more pagination needed
-    _hasMore = false;
   } catch (e) {
     debugPrint('Error loading workouts: $e');
   } finally {
@@ -65,13 +55,6 @@ class WorkoutLogModel extends ChangeNotifier {
     notifyListeners();
   }
 }
-
-
-  // Load more workouts (pagination)
-  Future<void> loadMore() async {
-    if (!_hasMore || _isLoading) return;
-    await loadWorkouts();
-  }
 
   // Get detailed workout data
   Future<WorkoutDetail?> getWorkoutDetail(int workoutId) async {
