@@ -165,6 +165,21 @@ class ExerciseCard extends StatelessWidget {
                         },
                       ),
                     ),
+
+                    // Delete set button
+                    IconButton(
+                      icon: Icon(
+                        Icons.close,
+                        size: 18,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () async {
+                        await workoutState.removeSet(exerciseIndex, setIndex);
+                      },
+                      tooltip: 'Delete set',
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                    ),
                   ],
                 ),
               );

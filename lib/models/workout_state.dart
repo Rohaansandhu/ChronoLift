@@ -399,14 +399,35 @@ class WorkoutStateModel extends ChangeNotifier {
 
       exercise.sets.removeAt(setIndex);
 
-      // Renumber remaining sets
+      // Renumber remaining sets in memory
       for (int i = setIndex; i < exercise.sets.length; i++) {
         exercise.sets[i] = exercise.sets[i].copyWith(setNumber: i + 1);
       }
 
+      // Persist the new set numbers to the database
+      await _updateSetOrder(exercise);
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error removing set: $e');
+    }
+  }
+
+// Update set order in database
+  Future<void> _updateSetOrder(WorkoutExerciseState exercise) async {
+    try {
+      for (final set in exercise.sets) {
+        if (set.id != null) {
+          await _workoutSetDao.updateSet(
+            set.id!,
+            SetsCompanion(
+              setNumber: Value(set.setNumber),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      debugPrint('Error updating set order: $e');
     }
   }
 
