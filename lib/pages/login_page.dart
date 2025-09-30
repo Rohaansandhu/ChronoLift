@@ -1,3 +1,5 @@
+import 'package:chronolift/main.dart';
+import 'package:chronolift/seed_data.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:chronolift/auth/auth_service.dart';
@@ -15,7 +17,6 @@ class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _emailCtrl = TextEditingController();
   final _passwordCtrl = TextEditingController();
-
 
   bool _obscure = true;
   bool _loading = false;
@@ -38,8 +39,9 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordCtrl.text,
       );
 
-      if (!mounted) return;
+      await seedDefaultsIfEmpty(db);
 
+      if (!mounted) return;
       // AuthGate stream will navigate to Home automatically.
     } on AuthException catch (e) {
       _showError(_friendlyError(e));

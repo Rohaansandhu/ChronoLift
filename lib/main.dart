@@ -42,9 +42,11 @@ void main() async {
   globalUser.initialize(db);
   await globalUser.loadCurrentUser();
 
-  // Seed default exercise and categories if necessary on startup
+  // Seed default exercise and categories if necessary on startup, only if user is logged in
   // TODO: Sync from Cloud if exercise and categories have changed
-  await seedDefaultsIfEmpty(db);
+  if (globalUser.currentUser != null) {
+    await seedDefaultsIfEmpty(db);
+  }
 
   runApp(
     MultiProvider(
