@@ -267,9 +267,28 @@ class WorkoutStateModel extends ChangeNotifier {
         _exercises[i].orderInWorkout = i + 1;
       }
 
+      // Persist the new order to the database
+      await _updateExerciseOrder();
+
       notifyListeners();
     } catch (e) {
       debugPrint('Error removing exercise: $e');
+    }
+  }
+
+// Update exercise order in database
+  Future<void> _updateExerciseOrder() async {
+    try {
+      for (final exercise in _exercises) {
+        await _workoutExerciseDao.updateWorkoutExercise(
+          exercise.workoutExerciseId,
+          WorkoutExercisesCompanion(
+            orderInWorkout: Value(exercise.orderInWorkout),
+          ),
+        );
+      }
+    } catch (e) {
+      debugPrint('Error updating exercise order: $e');
     }
   }
 

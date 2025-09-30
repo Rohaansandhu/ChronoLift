@@ -13,16 +13,46 @@ class ExerciseCard extends StatelessWidget {
 
   Future<void> _addNewSet(BuildContext context) async {
     final workoutState = context.read<WorkoutStateModel>();
-    // get the WorkoutExerciseState from the provider and pass it to addSet
     final exerciseState = workoutState.exercises[exerciseIndex];
     await workoutState.addSet(exerciseState);
+  }
+
+  Future<void> _deleteExercise(BuildContext context) async {
+    final workoutState = context.read<WorkoutStateModel>();
+    final exerciseName = workoutState.exercises[exerciseIndex].exercise.name;
+    
+    // Show confirmation dialog
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete Exercise'),
+        content: Text('Remove "$exerciseName" from this workout?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(
+              foregroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && context.mounted) {
+      await workoutState.removeExercise(exerciseIndex);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final workoutState = context.watch<WorkoutStateModel>();
 
-    // guard: make sure index is valid
+    // Guard: make sure index is valid
     if (exerciseIndex < 0 || exerciseIndex >= workoutState.exercises.length) {
       return const SizedBox.shrink();
     }
@@ -36,11 +66,26 @@ class ExerciseCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              exerciseState.exercise.name,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
+            // Exercise name with delete button
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    exerciseState.exercise.name,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                   ),
+                ),
+                IconButton(
+                  icon: Icon(
+                    Icons.delete_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  onPressed: () => _deleteExercise(context),
+                  tooltip: 'Delete exercise',
+                ),
+              ],
             ),
             const SizedBox(height: 12),
 
@@ -70,9 +115,7 @@ class ExerciseCard extends StatelessWidget {
                         value: set.reps?.toString() ?? '',
                         label: "Reps",
                         onChanged: (value) {
-                          // if empty default to 0
                           final reps = int.tryParse(value) ?? 0;
-                          // use named params for updateSet
                           workoutState.updateSet(
                             exerciseIndex,
                             setIndex,
@@ -93,9 +136,7 @@ class ExerciseCard extends StatelessWidget {
                         value: set.weight?.toString() ?? '',
                         label: "Weight",
                         onChanged: (value) {
-                          // If empty, default to 0
                           final weight = double.tryParse(value) ?? 0.0;
-                          // use named params for updateSet
                           workoutState.updateSet(
                             exerciseIndex,
                             setIndex,
@@ -104,6 +145,9 @@ class ExerciseCard extends StatelessWidget {
                         },
                       ),
                     ),
+                    
+                    const SizedBox(width: 12),
+                    
                     // Notes field
                     Expanded(
                       child: InlineEditableField(
@@ -113,12 +157,10 @@ class ExerciseCard extends StatelessWidget {
                         value: set.notes?.toString() ?? '',
                         label: "Notes",
                         onChanged: (value) {
-                          final notes = value;
-                          // use named params for updateSet
                           workoutState.updateSet(
                             exerciseIndex,
                             setIndex,
-                            notes: notes,
+                            notes: value,
                           );
                         },
                       ),
