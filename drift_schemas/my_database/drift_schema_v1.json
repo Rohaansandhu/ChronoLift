@@ -1,0 +1,644 @@
+{
+    "_meta": {
+        "description": "This file contains a serialized version of schema entities for drift.",
+        "version": "1.2.0"
+    },
+    "options": {
+        "store_date_time_values_as_text": false
+    },
+    "entities": [
+        {
+            "id": 0,
+            "references": [],
+            "type": "table",
+            "data": {
+                "name": "workouts",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "name",
+                        "getter_name": "name",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "date",
+                        "getter_name": "date",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "start_time",
+                        "getter_name": "startTime",
+                        "moor_type": "dateTime",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "end_time",
+                        "getter_name": "endTime",
+                        "moor_type": "dateTime",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "notes",
+                        "getter_name": "notes",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "created_at",
+                        "getter_name": "createdAt",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": "const CustomExpression('CAST(strftime(\\'%s\\', CURRENT_TIMESTAMP) AS INTEGER)')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "updated_at",
+                        "getter_name": "updatedAt",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": "const CustomExpression('CAST(strftime(\\'%s\\', CURRENT_TIMESTAMP) AS INTEGER)')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        },
+        {
+            "id": 1,
+            "references": [],
+            "type": "table",
+            "data": {
+                "name": "categories",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "name",
+                        "getter_name": "name",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "UNIQUE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "UNIQUE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "unique"
+                        ]
+                    },
+                    {
+                        "name": "description",
+                        "getter_name": "description",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "created_at",
+                        "getter_name": "createdAt",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": "const CustomExpression('CAST(strftime(\\'%s\\', CURRENT_TIMESTAMP) AS INTEGER)')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        },
+        {
+            "id": 2,
+            "references": [
+                1
+            ],
+            "type": "table",
+            "data": {
+                "name": "exercises",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "name",
+                        "getter_name": "name",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "UNIQUE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "UNIQUE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "unique"
+                        ]
+                    },
+                    {
+                        "name": "category_id",
+                        "getter_name": "categoryId",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "REFERENCES categories (id)",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "REFERENCES categories (id)"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            {
+                                "foreign_key": {
+                                    "to": {
+                                        "table": "categories",
+                                        "column": "id"
+                                    },
+                                    "initially_deferred": false,
+                                    "on_update": null,
+                                    "on_delete": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "instructions",
+                        "getter_name": "instructions",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "created_at",
+                        "getter_name": "createdAt",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": "const CustomExpression('CAST(strftime(\\'%s\\', CURRENT_TIMESTAMP) AS INTEGER)')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        },
+        {
+            "id": 3,
+            "references": [
+                0,
+                2
+            ],
+            "type": "table",
+            "data": {
+                "name": "workout_exercises",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "workout_id",
+                        "getter_name": "workoutId",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "REFERENCES workouts (id) ON DELETE CASCADE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "REFERENCES workouts (id) ON DELETE CASCADE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            {
+                                "foreign_key": {
+                                    "to": {
+                                        "table": "workouts",
+                                        "column": "id"
+                                    },
+                                    "initially_deferred": false,
+                                    "on_update": null,
+                                    "on_delete": "cascade"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "exercise_id",
+                        "getter_name": "exerciseId",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "REFERENCES exercises (id)",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "REFERENCES exercises (id)"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            {
+                                "foreign_key": {
+                                    "to": {
+                                        "table": "exercises",
+                                        "column": "id"
+                                    },
+                                    "initially_deferred": false,
+                                    "on_update": null,
+                                    "on_delete": null
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "order_in_workout",
+                        "getter_name": "orderInWorkout",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "notes",
+                        "getter_name": "notes",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        },
+        {
+            "id": 4,
+            "references": [
+                3
+            ],
+            "type": "table",
+            "data": {
+                "name": "sets",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "workout_exercise_id",
+                        "getter_name": "workoutExerciseId",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "REFERENCES workout_exercises (id) ON DELETE CASCADE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "REFERENCES workout_exercises (id) ON DELETE CASCADE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            {
+                                "foreign_key": {
+                                    "to": {
+                                        "table": "workout_exercises",
+                                        "column": "id"
+                                    },
+                                    "initially_deferred": false,
+                                    "on_update": null,
+                                    "on_delete": "cascade"
+                                }
+                            }
+                        ]
+                    },
+                    {
+                        "name": "set_number",
+                        "getter_name": "setNumber",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "weight",
+                        "getter_name": "weight",
+                        "moor_type": "double",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "reps",
+                        "getter_name": "reps",
+                        "moor_type": "int",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "duration",
+                        "getter_name": "duration",
+                        "moor_type": "int",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "rpe",
+                        "getter_name": "rpe",
+                        "moor_type": "int",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "notes",
+                        "getter_name": "notes",
+                        "moor_type": "string",
+                        "nullable": true,
+                        "customConstraints": null,
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "is_warmup",
+                        "getter_name": "isWarmup",
+                        "moor_type": "bool",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "CHECK (\"is_warmup\" IN (0, 1))",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "CHECK (\"is_warmup\" IN (0, 1))"
+                        },
+                        "default_dart": "const CustomExpression('0')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        },
+        {
+            "id": 5,
+            "references": [],
+            "type": "table",
+            "data": {
+                "name": "users",
+                "was_declared_in_moor": false,
+                "columns": [
+                    {
+                        "name": "id",
+                        "getter_name": "id",
+                        "moor_type": "int",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "PRIMARY KEY AUTOINCREMENT",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "PRIMARY KEY AUTOINCREMENT"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "auto-increment"
+                        ]
+                    },
+                    {
+                        "name": "uuid",
+                        "getter_name": "uuid",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "UNIQUE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "UNIQUE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "unique"
+                        ]
+                    },
+                    {
+                        "name": "email",
+                        "getter_name": "email",
+                        "moor_type": "string",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "UNIQUE",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "UNIQUE"
+                        },
+                        "default_dart": null,
+                        "default_client_dart": null,
+                        "dsl_features": [
+                            "unique"
+                        ]
+                    },
+                    {
+                        "name": "created_at",
+                        "getter_name": "createdAt",
+                        "moor_type": "dateTime",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "default_dart": "const CustomExpression('CAST(strftime(\\'%s\\', CURRENT_TIMESTAMP) AS INTEGER)')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    },
+                    {
+                        "name": "is_current",
+                        "getter_name": "isCurrent",
+                        "moor_type": "bool",
+                        "nullable": false,
+                        "customConstraints": null,
+                        "defaultConstraints": "CHECK (\"is_current\" IN (0, 1))",
+                        "dialectAwareDefaultConstraints": {
+                            "sqlite": "CHECK (\"is_current\" IN (0, 1))"
+                        },
+                        "default_dart": "const CustomExpression('0')",
+                        "default_client_dart": null,
+                        "dsl_features": []
+                    }
+                ],
+                "is_virtual": false,
+                "without_rowid": false,
+                "constraints": []
+            }
+        }
+    ]
+}

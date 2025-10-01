@@ -1,3 +1,4 @@
+import 'package:chronolift/services/global_user_service.dart';
 import 'package:drift/drift.dart';
 import '../database.dart';
 import '../tables/exercises_table.dart';
@@ -5,25 +6,40 @@ import '../tables/exercises_table.dart';
 part 'exercise_dao.g.dart';
 
 @DriftAccessor(tables: [Exercises])
-class ExerciseDao extends DatabaseAccessor<AppDatabase> with _$ExerciseDaoMixin {
+class ExerciseDao extends DatabaseAccessor<AppDatabase>
+    with _$ExerciseDaoMixin {
   ExerciseDao(super.db);
 
-  // Get all exercises
+  // Get all exercises for current user
   Future<List<Exercise>> getAllExercises() async {
-    return await (select(exercises)..orderBy([(e) => OrderingTerm.asc(e.name)])).get();
-  }
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
 
-  // Get exercises by category
-  Future<List<Exercise>> getExercisesByCategory(int categoryId) async {
-    return await (select(exercises)..where((e) => e.categoryId.equals(categoryId))).get();
-  }
-
-  // Search exercises by name
-  Future<List<Exercise>> searchExercises(String query) async {
     return await (select(exercises)
-      ..where((e) => e.name.contains(query))
-      ..orderBy([(e) => OrderingTerm.asc(e.name)]))
-      .get();
+          ..where((e) => e.uuid.equals(uuid))
+          ..orderBy([(e) => OrderingTerm.asc(e.name)]))
+        .get();
+  }
+
+  // Get exercises by category for current user
+  Future<List<Exercise>> getExercisesByCategory(int categoryId) async {
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
+    return await (select(exercises)
+          ..where((e) => e.categoryId.equals(categoryId) & e.uuid.equals(uuid)))
+        .get();
+  }
+
+  // Search exercises by name for current user
+  Future<List<Exercise>> searchExercises(String query) async {
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
+    return await (select(exercises)
+          ..where((e) => e.name.contains(query) & e.uuid.equals(uuid))
+          ..orderBy([(e) => OrderingTerm.asc(e.name)]))
+        .get();
   }
 
   // Create exercise
@@ -31,30 +47,49 @@ class ExerciseDao extends DatabaseAccessor<AppDatabase> with _$ExerciseDaoMixin 
     return await into(exercises).insert(exercise);
   }
 
-  // Update exercise
+  // Update exercise (verify UUID ownership)
   Future<int> updateExercise(int id, ExercisesCompanion exercise) async {
-    return await (update(exercises)..where((e) => e.id.equals(id)))
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
+    return await (update(exercises)
+          ..where((e) => e.id.equals(id) & e.uuid.equals(uuid)))
         .write(exercise);
   }
 
-  // Delete exercise
+  // Delete exercise (verify UUID ownership)
   Future<int> deleteExercise(int id) async {
-    return await (delete(exercises)..where((e) => e.id.equals(id))).go();
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
+    return await (delete(exercises)
+          ..where((e) => e.id.equals(id) & e.uuid.equals(uuid)))
+        .go();
   }
 
-  // Get unique categories
+  // Get unique categories for current user
   Future<List<int>> getCategories() async {
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
     final query = selectOnly(exercises, distinct: true)
-      ..addColumns([exercises.categoryId]);
-    
+      ..addColumns([exercises.categoryId])
+      ..where(exercises.uuid.equals(uuid));
+
     final results = await query.get();
     return results.map((row) => row.read(exercises.categoryId)!).toList();
   }
 
-  // Clear all exercises and return count
+  // Clear all exercises for current user and return count
   Future<int> clearallExercises() async {
-    final count = await (select(exercises)).get().then((list) => list.length);
-    await delete(exercises).go();
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+
+    final count = await (select(exercises)..where((e) => e.uuid.equals(uuid)))
+        .get()
+        .then((list) => list.length);
+
+    await (delete(exercises)..where((e) => e.uuid.equals(uuid))).go();
     return count;
   }
 }

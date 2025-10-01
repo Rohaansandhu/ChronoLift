@@ -14,7 +14,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
@@ -27,38 +27,73 @@ class _SettingsPageState extends State<SettingsPage> {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          
+
           if (snapshot.hasError) {
             return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, 
-                       size: 48, 
-                       color: colorScheme.error),
+                  Icon(Icons.error_outline, size: 48, color: colorScheme.error),
                   const SizedBox(height: 16),
                   Text('Error loading user data',
-                       style: TextStyle(color: colorScheme.error)),
+                      style: TextStyle(color: colorScheme.error)),
                 ],
               ),
             );
           }
-          
+
           final user = snapshot.data;
-          
+
           if (user == null) {
-            return const Center(
+            return Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.person_off_outlined, size: 48),
                   SizedBox(height: 16),
                   Text('No user logged in'),
+                  // Card(
+                  //   child: ListTile(
+                  //     leading: Icon(Icons.logout, color: colorScheme.error),
+                  //     title: Text(
+                  //       'Sign Out',
+                  //       style: TextStyle(color: colorScheme.error),
+                  //     ),
+                  //     onTap: () async {
+                  //       final confirmed = await showDialog<bool>(
+                  //         context: context,
+                  //         builder: (context) => AlertDialog(
+                  //           title: const Text('Sign Out'),
+                  //           content: const Text(
+                  //               'Are you sure you want to sign out?'),
+                  //           actions: [
+                  //             TextButton(
+                  //               onPressed: () => Navigator.pop(context, false),
+                  //               child: const Text('Cancel'),
+                  //             ),
+                  //             TextButton(
+                  //               onPressed: () => Navigator.pop(context, true),
+                  //               child: Text(
+                  //                 'Sign Out',
+                  //                 style: TextStyle(color: colorScheme.error),
+                  //               ),
+                  //             ),
+                  //           ],
+                  //         ),
+                  //       );
+
+                  //       if (confirmed == true && mounted) {
+                  //         await globalUser.clearCurrentUser();
+                  //         await sb.Supabase.instance.client.auth.signOut();
+                  //       }
+                  //     },
+                  //   ),
+                  // ),
                 ],
               ),
             );
           }
-          
+
           return Padding(
             padding: const EdgeInsets.all(16.0),
             child: Column(
@@ -77,7 +112,7 @@ class _SettingsPageState extends State<SettingsPage> {
                               radius: 30,
                               backgroundColor: colorScheme.primary,
                               child: Text(
-                                user.email.isNotEmpty 
+                                user.email.isNotEmpty
                                     ? user.email[0].toUpperCase()
                                     : 'U',
                                 style: TextStyle(
@@ -94,16 +129,23 @@ class _SettingsPageState extends State<SettingsPage> {
                                 children: [
                                   Text(
                                     'Profile',
-                                    style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .headlineSmall
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
                                     user.email,
-                                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                                      color: colorScheme.onSurface.withValues(alpha: 0.7),
-                                    ),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyLarge
+                                        ?.copyWith(
+                                          color: colorScheme.onSurface
+                                              .withValues(alpha: 0.7),
+                                        ),
                                   ),
                                 ],
                               ),
@@ -114,9 +156,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ),
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Settings Options
                 Card(
                   child: Column(
@@ -150,9 +192,9 @@ class _SettingsPageState extends State<SettingsPage> {
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: 16),
-                
+
                 // Danger Zone
                 Card(
                   child: ListTile(
@@ -166,7 +208,8 @@ class _SettingsPageState extends State<SettingsPage> {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: const Text('Sign Out'),
-                          content: const Text('Are you sure you want to sign out?'),
+                          content:
+                              const Text('Are you sure you want to sign out?'),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, false),
@@ -182,7 +225,7 @@ class _SettingsPageState extends State<SettingsPage> {
                           ],
                         ),
                       );
-                      
+
                       if (confirmed == true && mounted) {
                         await globalUser.clearCurrentUser();
                         await sb.Supabase.instance.client.auth.signOut();

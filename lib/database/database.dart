@@ -35,10 +35,10 @@ part 'database.g.dart';
   ],
 )
 class AppDatabase extends _$AppDatabase {
-  AppDatabase() : super(_openConnection());
+  AppDatabase([QueryExecutor? e]) : super(e ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration {
@@ -49,6 +49,36 @@ class AppDatabase extends _$AppDatabase {
 
         await transaction(() async {
           // put your migration logic here
+          // stepByStep(from1To2: (m, schema) async {
+          //   // Migrate categories table: change from unique(name) to unique(uuid, name)
+          //   await m.alterTable(
+          //     TableMigration(
+          //       schema.categories,
+          //       columnTransformer: {
+          //         schema.categories.id: schema.categories.id,
+          //         schema.categories.uuid: schema.categories.uuid,
+          //         schema.categories.name: schema.categories.name,
+          //         schema.categories.description: schema.categories.description,
+          //         schema.categories.createdAt: schema.categories.createdAt,
+          //       },
+          //     ),
+          //   );
+
+          //   // Migrate exercises table: change from unique(name) to unique(uuid, name)
+          //   await m.alterTable(
+          //     TableMigration(
+          //       schema.exercises,
+          //       columnTransformer: {
+          //         schema.exercises.id: schema.exercises.id,
+          //         schema.exercises.uuid: schema.exercises.uuid,
+          //         schema.exercises.name: schema.exercises.name,
+          //         schema.exercises.categoryId: schema.exercises.categoryId,
+          //         schema.exercises.instructions: schema.exercises.instructions,
+          //         schema.exercises.createdAt: schema.exercises.createdAt,
+          //       },
+          //     ),
+          //   );
+          // });
         });
 
         // Assert that the schema is valid after migrations
@@ -65,28 +95,6 @@ class AppDatabase extends _$AppDatabase {
       },
     );
   }
-
-  // Future<void> _insertDefaultExercises() async {
-  //   final defaultExercises = [
-  //     ExercisesCompanion.insert(
-  //       name: 'Bench Press',
-  //       categoryId: 'Chest',
-  //     ),
-  //     ExercisesCompanion.insert(
-  //       name: 'Squats',
-  //       categoryId: 'Legs',
-  //     ),
-  //     ExercisesCompanion.insert(
-  //       name: 'Deadlift',
-  //       categoryId: 'Back',
-  //     ),
-  //     // Add more default exercises
-  //   ];
-
-  //   for (final exercise in defaultExercises) {
-  //     await into(exercises).insertOnConflictUpdate(exercise);
-  //   }
-  // }
 }
 
 LazyDatabase _openConnection() {

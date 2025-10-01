@@ -17,14 +17,22 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     return await into(workouts).insert(workout);
   }
 
-  // Get all workouts
+  // Get all workouts for current user
   Future<List<Workout>> getAllWorkouts() async {
-    return await (select(workouts)..orderBy([(w) => OrderingTerm.desc(w.date)]))
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+    
+    return await (select(workouts)
+          ..where((w) => w.uuid.equals(uuid))
+          ..orderBy([(w) => OrderingTerm.desc(w.date)]))
         .get();
   }
 
-  // Get workout by ID with exercises and sets
+  // Get workout by ID with exercises and sets (with UUID verification)
   Future<WorkoutWithExercises?> getWorkoutWithExercises(int workoutId) async {
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+    
     final query = select(workouts).join([
       leftOuterJoin(
           workoutExercises, workoutExercises.workoutId.equalsExp(workouts.id)),
@@ -33,7 +41,7 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
       leftOuterJoin(
           sets, sets.workoutExerciseId.equalsExp(workoutExercises.id)),
     ])
-      ..where(workouts.id.equals(workoutId));
+      ..where(workouts.id.equals(workoutId) & workouts.uuid.equals(uuid));
 
     final rows = await query.get();
     if (rows.isEmpty) return null;
@@ -67,15 +75,24 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     );
   }
 
-  // Update workout
+  // Update workout (verify UUID ownership)
   Future<int> updateWorkout(int id, WorkoutsCompanion workout) async {
-    return await (update(workouts)..where((w) => w.id.equals(id)))
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+    
+    return await (update(workouts)
+          ..where((w) => w.id.equals(id) & w.uuid.equals(uuid)))
         .write(workout);
   }
 
-  // Delete workout
+  // Delete workout (verify UUID ownership)
   Future<int> deleteWorkout(int id) async {
-    return await (delete(workouts)..where((w) => w.id.equals(id))).go();
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+    
+    return await (delete(workouts)
+          ..where((w) => w.id.equals(id) & w.uuid.equals(uuid)))
+        .go();
   }
 
   // Add exercise to workout
@@ -85,7 +102,9 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     required int order,
     String? notes,
   }) async {
+    final globalUser = GlobalUserService.instance;
     final uuid = globalUser.currentUserUuid!;
+    
     return await into(workoutExercises).insert(
       WorkoutExercisesCompanion.insert(
           workoutId: workoutId,
@@ -105,7 +124,9 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     int? duration,
     int? rpe,
   }) async {
+    final globalUser = GlobalUserService.instance;
     final uuid = globalUser.currentUserUuid!;
+    
     return await into(sets).insert(
       SetsCompanion.insert(
         workoutExerciseId: workoutExerciseId,
@@ -119,24 +140,33 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
     );
   }
 
-  // Get workout stats
+  // Get workout stats for current user
   Future<WorkoutStats> getWorkoutStats(int workoutId) async {
+    final globalUser = GlobalUserService.instance;
+    final uuid = globalUser.currentUserUuid!;
+    
     final totalSets = await (selectOnly(sets)
           ..addColumns([sets.id.count()])
           ..join([
             innerJoin(workoutExercises,
-                workoutExercises.id.equalsExp(sets.workoutExerciseId))
+                workoutExercises.id.equalsExp(sets.workoutExerciseId)),
+            innerJoin(workouts,
+                workouts.id.equalsExp(workoutExercises.workoutId))
           ])
-          ..where(workoutExercises.workoutId.equals(workoutId)))
+          ..where(workoutExercises.workoutId.equals(workoutId) & 
+                  workouts.uuid.equals(uuid)))
         .getSingle();
 
     final totalVolume = await (selectOnly(sets)
           ..addColumns([(sets.weight * sets.reps.cast<double>()).sum()])
           ..join([
             innerJoin(workoutExercises,
-                workoutExercises.id.equalsExp(sets.workoutExerciseId))
+                workoutExercises.id.equalsExp(sets.workoutExerciseId)),
+            innerJoin(workouts,
+                workouts.id.equalsExp(workoutExercises.workoutId))
           ])
-          ..where(workoutExercises.workoutId.equals(workoutId)))
+          ..where(workoutExercises.workoutId.equals(workoutId) &
+                  workouts.uuid.equals(uuid)))
         .getSingle();
 
     return WorkoutStats(
@@ -148,7 +178,7 @@ class WorkoutDao extends DatabaseAccessor<AppDatabase> with _$WorkoutDaoMixin {
   }
 }
 
-// Helper classes
+// Helper classes remain the same
 class WorkoutWithExercises {
   final Workout workout;
   final List<WorkoutExerciseWithSets> exercises;
