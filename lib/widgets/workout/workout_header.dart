@@ -12,34 +12,37 @@ class WorkoutHeader extends StatefulWidget {
 class _WorkoutHeaderState extends State<WorkoutHeader> {
   late TextEditingController _nameController;
   late TextEditingController _notesController;
+  // Track which workout we are displaying, fixes bug with stale data in text fields
+  int? _lastWorkoutId;
 
   @override
   void initState() {
     super.initState();
-    final workoutState = context.read<WorkoutStateModel>();
+    _initializeControllers();
+  }
 
+  void _initializeControllers() {
+    final workoutState = context.read<WorkoutStateModel>();
     _nameController = TextEditingController(text: workoutState.name ?? "");
     _notesController = TextEditingController(text: workoutState.notes ?? "");
+    _lastWorkoutId = workoutState.currentWorkout?.id;
   }
 
   @override
-  void didUpdateWidget(covariant WorkoutHeader oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final workoutState = context.read<WorkoutStateModel>();
-
-    // Keep controllers in sync with state if changed externally
-    if (_nameController.text != (workoutState.name ?? "")) {
-      _nameController.text = workoutState.name ?? "";
-      _nameController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _nameController.text.length),
-      );
-    }
-
-    if (_notesController.text != (workoutState.notes ?? "")) {
-      _notesController.text = workoutState.notes ?? "";
-      _notesController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _notesController.text.length),
-      );
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final workoutState = context.watch<WorkoutStateModel>();
+    
+    // Check if we're loading a different workout
+    if (workoutState.currentWorkout?.id != _lastWorkoutId) {
+      // Dispose old controllers
+      _nameController.dispose();
+      _notesController.dispose();
+      
+      // Create new controllers with the new workout's data
+      _nameController = TextEditingController(text: workoutState.name ?? "");
+      _notesController = TextEditingController(text: workoutState.notes ?? "");
+      _lastWorkoutId = workoutState.currentWorkout?.id;
     }
   }
 
@@ -105,7 +108,7 @@ class _WorkoutHeaderState extends State<WorkoutHeader> {
   }
 
   String _formatDateTime(DateTime? dateTime) {
-    if (dateTime == null) return 'Not set (Will auto-set on finish)';
+    if (dateTime == null) return 'Not set (Will auto-set on )';
     return '${dateTime.day}/${dateTime.month}/${dateTime.year} ${dateTime.hour.toString().padLeft(2, '0')}:${dateTime.minute.toString().padLeft(2, '0')}';
   }
 
