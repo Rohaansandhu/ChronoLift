@@ -37,7 +37,7 @@ dependencies:
   shiny_button: ^1.1.1
   provider: ^6.1.5
   logger: ^2.6.1
-  supabase_flutter: ^2.10.0
+  supabase_flutter: ^2.10.2
   flutter_dotenv: ^6.0.0
   drift: ^2.28.2
   drift_flutter: ^0.2.6
