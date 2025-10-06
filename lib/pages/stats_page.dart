@@ -8,7 +8,7 @@ class StatsPage extends StatelessWidget {
     return Scaffold(
         appBar: AppBar(
           title: const Text("Statistics"),
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          backgroundColor: Theme.of(context).colorScheme.surface,
         ),
         body: Center(child: Text("Stats will appear here... ")));
   }

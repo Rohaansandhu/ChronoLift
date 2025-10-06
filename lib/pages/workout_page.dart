@@ -85,7 +85,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         appBar: AppBar(
             title: Text(
               widget.workoutId != null ? "Edit Workout" : "New Workout",
-              style: TextStyle(color: Theme.of(context).colorScheme.tertiary),
+              style: TextStyle(color: Theme.of(context).textTheme.displayMedium?.color),
             ),
             backgroundColor: Theme.of(context).colorScheme.primary,
             actions: [

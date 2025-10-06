@@ -41,8 +41,8 @@ class _MainNavPageState extends State<MainNavPage> {
             });
           },
           selectedIndex: currentIndex,
-          indicatorColor: Theme.of(context).colorScheme.inversePrimary,
-          backgroundColor: Theme.of(context).colorScheme.primary,
+          indicatorColor: Theme.of(context).colorScheme.tertiary,
+          backgroundColor: Theme.of(context).colorScheme.surface,
           destinations: const [
             NavigationDestination(
               icon: Icon(Icons.home),

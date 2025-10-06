@@ -18,8 +18,7 @@ class _SettingsPageState extends State<SettingsPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Settings"),
-        backgroundColor: colorScheme.primary,
-        foregroundColor: colorScheme.onPrimary,
+        backgroundColor: colorScheme.surface,
       ),
       body: StreamBuilder<User?>(
         stream: globalUser.watchCurrentUser(),

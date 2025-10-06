@@ -45,11 +45,8 @@ class _HomePageState extends State<HomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          "ChronoLift - Workout Log",
-          style: TextStyle(color: colorScheme.tertiary),
-        ),
-        backgroundColor: colorScheme.primary,
+        title: Text("Workout Log"),
+        backgroundColor: colorScheme.surface,
       ),
       backgroundColor: colorScheme.surface,
       body: Column(
@@ -64,11 +61,11 @@ class _HomePageState extends State<HomePage> {
               return Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(16),
-                color: colorScheme.primaryContainer,
+                color: colorScheme.surface,
                 child: Row(
                   children: [
                     Icon(Icons.fitness_center,
-                        color: colorScheme.onPrimaryContainer),
+                        color: colorScheme.onSurface),
                     const SizedBox(width: 8),
                     Expanded(
                       child: Column(
@@ -78,15 +75,13 @@ class _HomePageState extends State<HomePage> {
                             'Workout in Progress',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: colorScheme.onPrimaryContainer,
                             ),
                           ),
                           Text(
                             _formatDuration(workoutState.elapsedDuration),
                             style: TextStyle(
                               fontSize: 12,
-                              color: colorScheme.onPrimaryContainer
-                                  .withValues(alpha: 0.8),
+                              color: colorScheme.onSurface.withValues(alpha: 0.8),
                             ),
                           ),
                         ],
@@ -101,9 +96,8 @@ class _HomePageState extends State<HomePage> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: colorScheme.primary,
-                        foregroundColor: colorScheme.onPrimary,
-                      ),
+                          backgroundColor: colorScheme.primary,
+                          foregroundColor: colorScheme.onPrimary),
                       child: const Text('Continue'),
                     ),
                   ],
@@ -119,6 +113,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildNewWorkoutButton() {
+    final colorScheme = Theme.of(context).colorScheme;
     return Column(
       children: [
         const SizedBox(height: 20),
@@ -134,16 +129,12 @@ class _HomePageState extends State<HomePage> {
               context.read<WorkoutStateModel>().startWorkout();
             },
             label: 'New Workout',
-            icon: const Icon(Icons.add, color: Colors.black),
-            backgroundColor: const Color(0xFFFFD6A5),
-            textColor: Colors.black87,
+            icon: Icon(Icons.add, color: colorScheme.secondary),
+            backgroundColor: colorScheme.primary,
+            textColor: colorScheme.onPrimary,
             shineDirection: ShineDirection.leftToRight,
             iconPosition: IconPosition.leading,
             tooltip: 'Start a new workout',
-            textStyle: const TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
             borderRadius: 16.0,
             elevation: 4.0,
             shadowColor: Colors.black54,
@@ -170,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                     size: 64,
                     color: Theme.of(context)
                         .colorScheme
-                        .onSurface
+                        .tertiary
                         .withValues(alpha: 0.3)),
                 const SizedBox(height: 16),
                 Text(
