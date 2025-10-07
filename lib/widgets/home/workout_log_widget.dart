@@ -16,7 +16,8 @@ class WorkoutLogCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final DateTime workoutDate = workout.date; // Already a DateTime
+    final colorScheme = Theme.of(context).colorScheme;
+    final DateTime workoutDate = workout.date;
     final String workoutName = workout.name ?? 'Unnamed Workout';
     final int durationMinutes = _calculateDuration();
     final List<String> exerciseNames =
@@ -26,11 +27,11 @@ class WorkoutLogCard extends StatelessWidget {
       width: double.infinity,
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
+        color: Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: colorScheme.onPrimaryContainer.withValues(alpha: 0.1),
             blurRadius: 4,
             offset: const Offset(0, 2),
           ),
@@ -64,25 +65,30 @@ class WorkoutLogCard extends StatelessWidget {
                           padding: const EdgeInsets.symmetric(
                               horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).primaryColor.withValues(alpha: 0.1),
+                            color: Theme.of(context)
+                                .primaryColor
+                                .withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Text(
                             '${durationMinutes}m',
-                            style:
-                                Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: Theme.of(context).primaryColor,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodySmall
+                                ?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.onSecondary,
+                                  fontWeight: FontWeight.w600,
+                                ),
                           ),
                         ),
                       // Delete button aligned to right
                       Align(
                         alignment: Alignment.centerRight,
                         child: IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.black),
+                          icon: Icon(Icons.delete, color: colorScheme.error),
                           onPressed: () => _deleteWorkout(context, workout.id),
+                          iconSize: 30,
                         ),
                       ),
                     ],

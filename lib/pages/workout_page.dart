@@ -69,6 +69,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   Widget build(BuildContext context) {
     final exerciseModel = context.watch<ExerciseModel>();
     final workoutState = context.watch<WorkoutStateModel>();
+    final colorScheme = Theme.of(context).colorScheme;
 
     if (exerciseModel.isLoading || workoutState.isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -85,14 +86,14 @@ class _WorkoutPageState extends State<WorkoutPage> {
         appBar: AppBar(
             title: Text(
               widget.workoutId != null ? "Edit Workout" : "New Workout",
-              style: TextStyle(color: Theme.of(context).textTheme.displayMedium?.color),
+              style: TextStyle(color: colorScheme.onSurface),
             ),
-            backgroundColor: Theme.of(context).colorScheme.primary,
+            backgroundColor: colorScheme.surface,
             actions: [
               Align(
                 alignment: Alignment.centerRight,
                 child: IconButton(
-                  icon: const Icon(Icons.delete, color: Colors.black),
+                  icon: Icon(Icons.delete, color: colorScheme.error),
                   onPressed: () async {
                     final result = await DeleteConfirmationDialog.show(context);
                     if (result == true && context.mounted) {
@@ -108,6 +109,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
             children: [
               Expanded(
                 child: SingleChildScrollView(
+                  physics: BouncingScrollPhysics(decelerationRate: ScrollDecelerationRate.fast),
                   controller: _scrollController,
                   child: Column(
                     children: [
@@ -133,6 +135,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
               const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => workoutState.finishWorkout(context),
+                style: ButtonStyle(backgroundColor: WidgetStateProperty.all(colorScheme.tertiary)),
                 child: const Text("Finish Workout"),
               ),
             ],

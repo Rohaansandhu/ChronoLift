@@ -129,9 +129,9 @@ class _HomePageState extends State<HomePage> {
               context.read<WorkoutStateModel>().startWorkout();
             },
             label: 'New Workout',
-            icon: Icon(Icons.add, color: colorScheme.secondary),
-            backgroundColor: colorScheme.primary,
-            textColor: colorScheme.onPrimary,
+            icon: Icon(Icons.add, color: colorScheme.primary),
+            backgroundColor: colorScheme.secondary,
+            textColor: colorScheme.onSecondary,
             shineDirection: ShineDirection.leftToRight,
             iconPosition: IconPosition.leading,
             tooltip: 'Start a new workout',

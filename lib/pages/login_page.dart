@@ -153,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     'Track your lifts. Crush your goals.',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: cs.outline.withValues(alpha: 0.7),
+                          color: cs.onSurface.withValues(alpha: 0.7),
                         ),
                     textAlign: TextAlign.center,
                   ),
